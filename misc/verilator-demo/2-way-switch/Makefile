@@ -1,12 +1,13 @@
 # Project Variables
-TOPNAME = top
-VSRCS = $(TOPNAME).v
+TOP_MODULE = switch
+VSRCS = $(TOP_MODULE).v
 TARGET_DIR = target
 
 all: sim
 
 # Verilator Common Flags
-VERILATOR_FLAGS = -Wall -MMD -O3 --x-assign fast --x-initial fast
+VERILATOR_FLAGS = -Wall -MMD -O3 --x-assign fast --x-initial fast \
+	--prefix Vtop --top-module $(TOP_MODULE)
 
 # Verilator Targets
 CSRCS_SIM = sim.cc
@@ -33,7 +34,7 @@ $(MDIR_NVB)/$(BIND_SRC): $(NXDC_NVB)
 # provide `nvboard-archive` target and `$(NVBOARD_ARCHIVE)` variable
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
-CFLAGS += $(addprefix -I, $(INC_PATH)) -DTOP_NAME="\"V$(TOPNAME)\""
+CFLAGS += $(addprefix -I, $(INC_PATH)) -DTOP_NAME="Vtop"
 
 $(MDIR_NVB)/Vtop: $(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(MDIR_NVB)/$(BIND_SRC)
 	cp $(CSRCS_NVB) $(MDIR_NVB)

@@ -1,4 +1,4 @@
-module top (
+module switch (
     input  wire a,
     input  wire b,
     output wire f

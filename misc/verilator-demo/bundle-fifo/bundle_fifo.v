@@ -1,4 +1,4 @@
-module top (
+module bundle_fifo (
     input  wire clk,
     input  wire rst,
     input  wire enq_data,
