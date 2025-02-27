@@ -1,4 +1,5 @@
 !.gitignore
 !Makefile
-!*.cc
-!*.v
+!/*.cc
+!/*.v
+!/*.nxdc

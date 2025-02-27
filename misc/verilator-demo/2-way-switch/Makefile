@@ -1,28 +1,56 @@
-VSRCS = top.v
-CSRCS = top.cc
-MDIR = target
-WAVE = wave.fst
+# Project Variables
+TOPNAME = top
+VSRCS = $(TOPNAME).v
+TARGET_DIR = target
 
 all: sim
 
+# Verilator Common Flags
+VERILATOR_FLAGS = -Wall -MMD -O3 --x-assign fast --x-initial fast
 
 # Verilator Targets
-$(MDIR)/Vtop.mk: $(VSRCS) $(CSRCS)
-	verilator -cc -exe -Wall -Mdir $(MDIR) --trace-fst $(CSRCS) $(VSRCS) 
+CSRCS_SIM = sim.cc
+MDIR_SIM = $(TARGET_DIR)/sim
+WAVE_FILE = wave.fst
 
-$(MDIR)/Vtop: $(MDIR)/Vtop.mk $(VSRCS) $(CSRCS)
-	cd $(MDIR) && $(MAKE) -f Vtop.mk
+$(MDIR_SIM)/Vtop: $(VSRCS) $(CSRCS_SIM)
+	mkdir -p $(@D)
+	cp $(CSRCS_SIM) $(MDIR_SIM)
+	verilator -cc -exe $(VERILATOR_FLAGS) --trace-fst \
+			--build -Mdir $(@D) \
+			$(CSRCS_SIM) $(VSRCS) -o Vtop
+
+# NVBoard Targets
+CSRCS_NVB = nvb.cc
+NXDC_NVB = nvb.nxdc
+MDIR_NVB = $(TARGET_DIR)/nvb
+BIND_SRC = auto_pin_bind.cc
+
+$(MDIR_NVB)/$(BIND_SRC): $(NXDC_NVB)
+	mkdir -p $(@D)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
+
+# provide `nvboard-archive` target and `$(NVBOARD_ARCHIVE)` variable
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
+CFLAGS += $(addprefix -I, $(INC_PATH)) -DTOP_NAME="\"V$(TOPNAME)\""
+
+$(MDIR_NVB)/Vtop: $(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(MDIR_NVB)/$(BIND_SRC)
+	cp $(CSRCS_NVB) $(MDIR_NVB)
+	verilator -cc -exe $(VERILATOR_FLAGS) \
+		--build --Mdir $(MDIR_NVB) \
+		$(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(BIND_SRC) \
+		-CFLAGS "$(CFLAGS)" -LDFLAGS "$(LDFLAGS)" -o Vtop
 
 
 # Quick Commands
-sim: $(MDIR)/Vtop
-	$(MDIR)/Vtop
+sim: $(MDIR_SIM)/Vtop
+	$<
 
-# for cpp completion
-dev: $(MDIR)/Vtop.mk
+nvb: $(MDIR_NVB)/Vtop
+	$<
 
 clean:
-	rm -rf $(MDIR) $(WAVE)
+	rm -rf $(TARGET_DIR) $(WAVE_FILE)
 
-
-.PHONY: all sim dev clean
+.PHONY: all sim nvb clean
