@@ -34,7 +34,7 @@ $(MDIR_NVB)/Vtop: $(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(MDIR_NVB)/$(BIND_SR
 # STA
 STA_DIR = result
 sta:
-	$(MAKE) -C $(STA_HOME) O=$(PWD) DESIGN=mux42b_sta_wrapper \
+	$(MAKE) -C $(STA_HOME) O=$(PWD) DESIGN=sta_wrapper \
 		RTL_FILES="$(realpath $(wildcard *.v))" sta
 
 # Quick Commands
