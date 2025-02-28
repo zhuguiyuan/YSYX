@@ -1,0 +1,6 @@
+!*
+bin/
+nangate45/
+result
+*.log
+.stamp.init
