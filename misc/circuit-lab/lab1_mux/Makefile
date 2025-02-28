@@ -31,12 +31,17 @@ $(MDIR_NVB)/Vtop: $(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(MDIR_NVB)/$(BIND_SR
 		$(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(BIND_SRC) \
 		-CFLAGS "$(CFLAGS)" -LDFLAGS "$(LDFLAGS)" -o Vtop
 
+# STA
+STA_DIR = result
+sta:
+	$(MAKE) -C $(STA_HOME) O=$(PWD) DESIGN=mux42b_sta_wrapper \
+		RTL_FILES="$(realpath $(wildcard *.v))" sta
 
 # Quick Commands
 nvb: $(MDIR_NVB)/Vtop
 	$<
 
 clean:
-	rm -rf $(TARGET_DIR) $(WAVE_FILE)
+	rm -rf $(TARGET_DIR) $(WAVE_FILE) $(STA_DIR)
 
-.PHONY: all nvb clean
+.PHONY: all nvb sta clean
