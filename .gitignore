@@ -11,5 +11,6 @@
 !README.md
 !.gitignore
 !init.sh
+!env.sh
 /fceux-am
 /nvboard
