@@ -1,33 +1,24 @@
-#include "Vtop.h"
-#include <array>
-#include <bitset>
+#include <fmt/core.h>
+
 #include <cstdio>
 #include <cstdlib>
-#include <deque>
 #include <functional>
-#include <memory>
+#include <map>
 #include <random>
-#include <sstream>
 #include <stdexcept>
 
-enum class Op : int { ADD, SUB, NOTA, AND, OR, XOR, CMP, EQ };
+#include "Vtop.h"
 
-template <int width> std::string to_binary(int n) {
-  const unsigned mask = (1U << width) - 1;
-  return std::bitset<width>(static_cast<unsigned>(n) & mask).to_string();
-}
+enum class Op { ADD, SUB, NOTA, AND, OR, XOR, CMP, EQ };
 
 struct InTransaction {
   int a;
   int b;
   Op op;
 
-  std::string str() const {
-    char buf[64];
-    snprintf(buf, sizeof(buf), "a: %s, b: %s, op: %s", to_binary<4>(a).c_str(),
-             to_binary<4>(b).c_str(),
-             to_binary<3>(static_cast<int>(op)).c_str());
-    return buf;
+  std::string to_string() const {
+    return fmt::format("a: {:04b}, b: {:04b}, op: {:03b}", a & 0xF, b & 0xF,
+                       static_cast<int>(op));
   }
 };
 
@@ -35,14 +26,11 @@ struct OutTransaction {
   int result;
   int z_flag;
   int c_flag;
-  int of_flag;
+  int o_flag;
 
-  std::string str() const {
-    char buf[64];
-    snprintf(buf, sizeof(buf), "res: %s, z: %s, c: %s, of: %s",
-             to_binary<4>(result).c_str(), to_binary<1>(z_flag).c_str(),
-             to_binary<1>(c_flag).c_str(), to_binary<1>(of_flag).c_str());
-    return buf;
+  std::string to_string() const {
+    return fmt::format("r: {:04b}, zf: {}, cf: {}, of: {}", result & 0xF,
+                       z_flag, c_flag, o_flag);
   }
 };
 
@@ -63,36 +51,32 @@ struct Scoreboard {
   Checker create_checker(const char *op_name, ExpectationMaker get_expectations,
                          int check_flags = RESULT | Z_FLAG | C_FLAG | OF_FLAG) {
     return [=](const InTransaction &in, const OutTransaction &out) {
-      OutTransaction exp_out = get_expectations(in);
+      const OutTransaction exp_out = get_expectations(in);
 
-      std::stringstream ss;
-      ss << op_name << " Check Failed\nInput: " << in.str()
-         << "\nExpected: " << exp_out.str() << "\nActual: " << out.str()
-         << "\n";
+      std::string error_msg = fmt::format(
+          "{} Failed with input {{{}}}\n[Expected] {}\n[Actual  ] {}\n",
+          op_name, in.to_string(), exp_out.to_string(), out.to_string());
 
-      bool failed = false;
       auto check = [&](auto expected, auto actual, const char *name,
                        CheckFlag flag) {
-        if (!((check_flags & flag) && expected != actual))
-          return false;
-
-        ss << "  " << name << " FAIL: expected " << expected << " got "
-           << actual << "\n";
+        if (!((check_flags & flag) && expected != actual)) return false;
         return true;
       };
 
+      bool failed = false;
       failed |= check(exp_out.result, out.result, "Result", RESULT);
       failed |= check(exp_out.z_flag, out.z_flag, "Z-Flag", Z_FLAG);
       failed |= check(exp_out.c_flag, out.c_flag, "C-Flag", C_FLAG);
-      failed |= check(exp_out.of_flag, out.of_flag, "OF-Flag", OF_FLAG);
+      failed |= check(exp_out.o_flag, out.o_flag, "O-Flag", OF_FLAG);
 
-      if (failed)
-        throw std::runtime_error(ss.str());
+      if (failed) {
+        throw std::runtime_error(error_msg);
+      }
     };
   }
 
   Scoreboard() {
-    checkers[Op::ADD] = create_checker("ADD", [](auto &in) {
+    checkers[Op::ADD] = create_checker("ADD", [](const auto &in) {
       const int sum = in.a + in.b;
       const int res = sum & 0xF;
       const bool of =
@@ -100,7 +84,7 @@ struct Scoreboard {
       return OutTransaction{res, res == 0, (sum >> 4) & 1, of};
     });
 
-    checkers[Op::SUB] = create_checker("SUB", [](auto &in) {
+    checkers[Op::SUB] = create_checker("SUB", [](const auto &in) {
       const int diff = in.a - in.b;
       const int res = diff & 0xF;
       const bool of =
@@ -110,7 +94,7 @@ struct Scoreboard {
 
     checkers[Op::NOTA] = create_checker(
         "NOTA",
-        [](auto &in) {
+        [](const auto &in) {
           const int res = (~in.a) & 0xF;
           return OutTransaction{res, res == 0, 0, 0};
         },
@@ -118,7 +102,7 @@ struct Scoreboard {
 
     checkers[Op::AND] = create_checker(
         "AND",
-        [](auto &in) {
+        [](const auto &in) {
           const int res = (in.a & in.b) & 0xF;
           return OutTransaction{res, res == 0, 0, 0};
         },
@@ -126,7 +110,7 @@ struct Scoreboard {
 
     checkers[Op::OR] = create_checker(
         "OR",
-        [](auto &in) {
+        [](const auto &in) {
           const int res = (in.a | in.b) & 0xF;
           return OutTransaction{res, res == 0, 0, 0};
         },
@@ -134,7 +118,7 @@ struct Scoreboard {
 
     checkers[Op::XOR] = create_checker(
         "XOR",
-        [](auto &in) {
+        [](const auto &in) {
           const int res = (in.a ^ in.b) & 0xF;
           return OutTransaction{res, res == 0, 0, 0};
         },
@@ -142,7 +126,7 @@ struct Scoreboard {
 
     checkers[Op::CMP] = create_checker(
         "CMP",
-        [](auto &in) {
+        [](const auto &in) {
           int8_t a_sign_ext = in.a & 0x8 ? (0xF0 | in.a) : in.a;
           int8_t b_sign_ext = in.b & 0x8 ? (0xF0 | in.b) : in.b;
           const int res = a_sign_ext < b_sign_ext;
@@ -152,7 +136,7 @@ struct Scoreboard {
 
     checkers[Op::EQ] = create_checker(
         "EQ",
-        [](auto &in) {
+        [](const auto &in) {
           const bool eq = in.a == in.b;
           return OutTransaction{eq ? 1 : 0, !eq, 0, 0};
         },
@@ -160,7 +144,7 @@ struct Scoreboard {
   }
 
   void verify(const InTransaction &in, const OutTransaction &out) {
-    checkers[in.op](in, out);
+    checkers.at(in.op)(in, out);
   }
 };
 
@@ -179,7 +163,7 @@ int main(int argc, char **argv) {
 
   try {
     for (int i = 0; i < 500000; ++i) {
-      const InTransaction in = rand_trans();
+      const auto in = rand_trans();
       top.a = in.a & 0xF;
       top.b = in.b & 0xF;
       top.op = static_cast<int>(in.op);

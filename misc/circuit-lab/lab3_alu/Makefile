@@ -18,7 +18,7 @@ $(MDIR_SIM)/Vtop: $(VSRCS) $(CSRCS_SIM)
 	mkdir -p $(@D)
 	cp $(CSRCS_SIM) $(MDIR_SIM)
 	verilator -cc -exe $(VERILATOR_FLAGS) --trace-fst \
-			--build -Mdir $(@D) \
+			--build -Mdir $(@D) -LDFLAGS -lfmt \
 			$(CSRCS_SIM) $(VSRCS) -o Vtop
 
 # NVBoard Targets
