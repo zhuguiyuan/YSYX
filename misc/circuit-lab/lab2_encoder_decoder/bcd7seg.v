@@ -14,6 +14,6 @@ module bcd7seg(
   assign segs[7] = 8'b11100000;
   assign segs[8] = 8'b11111110;
   assign segs[9] = 8'b11110110;
-  assign out = in < 10 ? ~segs[in] : ~8'b000000100;
+  assign out = in < 10 ? ~segs[in] : ~8'b000000001;
 
 endmodule
