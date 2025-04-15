@@ -3,3 +3,5 @@
 !/*.cc
 !/*.v
 !/*.nxdc
+!/keymap.json
+!/README.md
