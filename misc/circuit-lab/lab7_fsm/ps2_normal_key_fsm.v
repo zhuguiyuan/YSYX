@@ -13,14 +13,14 @@ module ps2_normal_key_fsm (
   reg       pressing_reg = 0;
   always @(posedge clk) begin
     if (~rstn) begin
-      code_reg <= 0;
       pressing_reg <= 0;
+      // well we don't need to reset the code_reg
     end else if (~pressing_reg && key_p) begin
       code_reg <= key_d;
       pressing_reg <= 1;
     end else if (pressing_reg && key_r && key_d == code_reg) begin
       pressing_reg <= 0;
-      code_reg <= 0;
+      // well we don't need to clear the code_reg
     end
   end
   assign key_s = pressing_reg;

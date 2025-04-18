@@ -3,5 +3,5 @@
 !/*.cc
 !/*.v
 !/*.nxdc
-!/keymap.json
+!/keymap.py
 !/README.md

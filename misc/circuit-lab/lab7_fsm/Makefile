@@ -2,7 +2,7 @@
 TOP_MODULE = top
 VSRCS = $(TOP_MODULE).v ps2_keyboard_wrapper.v ps2_keyboard.v \
   ps2_control_key_fsm.v ps2_normal_key_fsm.v ps2_capslock_fsm.v \
-  ps2_master_fsm.v ps2_system.v bcd7seg.v
+  ps2_master_fsm.v ps2_system.v bcd7seg.v mux_key_template.v
 
 TARGET_DIR = target
 
