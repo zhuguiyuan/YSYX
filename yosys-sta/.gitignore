@@ -1,6 +1,5 @@
-!*
 bin/
-nangate45/
+/pdk/
 result
 *.log
 .stamp.init
