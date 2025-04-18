@@ -71,7 +71,23 @@ module top (
     .out 	(bcd_ascii_hi       )
   );
 
-  wire [7:0] key_norm_cnt= 0;
+  // key_norm_data changing means key_norm_s 1 -> 0 -> 1
+  // so we can impl a counter outside the ps2_system
+  reg [7:0] key_norm_cnt_reg = 0;
+  reg norm_hist_reg = 0;
+  always @(posedge clk) begin
+    if (~rstn) begin
+      key_norm_cnt_reg <= 0;
+      norm_hist_reg <= 0;
+    end else begin
+      if (norm_hist_reg == 0 & key_norm_s == 1) begin
+        key_norm_cnt_reg <= key_norm_cnt_reg + 1;
+      end
+      norm_hist_reg <= key_norm_s;
+    end
+  end
+
+  wire [7:0] key_norm_cnt = key_norm_cnt_reg;
   bcd7seg u_bcd_cnt_lo (
     .en  	(1'b1             ),
     .in  	(key_norm_cnt[3:0]),
