@@ -26,3 +26,4 @@ addenv AM_HOME abstract-machine
 addenv NPC_HOME npc
 addenv NVBOARD_HOME nvboard
 addenv STA_HOME yosys-sta
+pushd "$STA_HOME" && make init && popd
