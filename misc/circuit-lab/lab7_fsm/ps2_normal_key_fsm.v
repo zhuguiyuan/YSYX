@@ -8,6 +8,7 @@ module ps2_normal_key_fsm (
     output wire [7:0] code
 );
   reg [7:0] code_reg = 0;
+  /* verilator lint_off UNUSEDSIGNAL */
   reg [7:0] ascii_reg = 0;
   reg       pressing_reg = 0;
   always @(posedge clk) begin

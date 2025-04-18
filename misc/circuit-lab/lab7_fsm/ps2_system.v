@@ -36,6 +36,7 @@ module ps2_system (
   wire       key_ctrl_p;
   wire       key_ctrl_r;
   wire       key_capslock_p;
+  /* verilator lint_off UNUSEDSIGNAL */
   wire       key_capslock_r;
   wire [7:0] key_norm_d;
   wire       key_norm_p;
@@ -103,7 +104,7 @@ module ps2_system (
   ps2_normal_key_fsm u_norm_fsm (
     .clk   (clk           ),
     .rstn  (rstn          ),
-    .key_d (code_data     ),
+    .key_d (key_norm_d    ),
     .key_p (key_norm_p    ),
     .key_r (key_norm_r    ),
     .key_s (key_norm_s    ),

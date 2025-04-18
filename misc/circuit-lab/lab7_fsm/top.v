@@ -2,6 +2,9 @@ module top (
     input  wire       clk,
     input  wire       rstn,
 
+    input  wire       ps2_clk,
+    input  wire       ps2_data,
+
     output wire [7:0] bcd_code_lo,
     output wire [7:0] bcd_code_hi,
     output wire [7:0] bcd_ascii_lo,
@@ -46,13 +49,13 @@ module top (
   bcd7seg u_bcd_code_lo (
     .en  	(key_norm_s        ),
     .in  	(key_norm_code[3:0]),
-    .out 	(bcd_ascii_lo      )
+    .out 	(bcd_code_lo       )
   );
 
   bcd7seg u_bcd_code_hi (
     .en  	(key_norm_s        ),
     .in  	(key_norm_code[7:4]),
-    .out 	(bcd_ascii_hi      )
+    .out 	(bcd_code_hi       )
   );
 
   wire [7:0] key_norm_ascii = 0;

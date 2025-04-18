@@ -4,13 +4,20 @@
 void nvboard_bind_all_pins(Vtop *top);
 
 int main() {
-  auto top = Vtop{};
+  Vtop top{};
 
   nvboard_bind_all_pins(&top);
   nvboard_init();
 
-  while (1) {
+  auto single_cycle = [&]() {
+    top.clk = 0;
     top.eval();
+    top.clk = 1;
+    top.eval();
+  };
+
+  while (1) {
+    single_cycle();
     nvboard_update();
   }
 }
