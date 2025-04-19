@@ -1,0 +1,6 @@
+The RISC-V Instruction Set Manual (Volume I, Volume II) and ABI
+
+- ISA Volume I: https://github.com/riscv/riscv-isa-manual/releases/download/Priv-v1.12/riscv-privileged-20211203.pdf
+- ISA Volume II: https://github.com/riscv/riscv-isa-manual/releases/download/Ratified-IMAFDQC/riscv-spec-20191213.pdf
+- ABI Manual : https://github.com/riscv-non-isa/riscv-elf-psabi-doc
+
