@@ -6,3 +6,6 @@ The RISC-V Instruction Set Manual (Volume I, Volume II) and ABI
 FCEUX-AM 的游戏镜像
 - https://jyywiki.cn/ICS/2021/labs/PA1.html
 
+NEMU API
+- https://ysyx.oscc.cc/docs/ics-pa/nemu-isa-api.html
+
