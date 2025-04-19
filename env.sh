@@ -30,12 +30,13 @@ function warn() {
 warn "Install essential packages"
 sudo apt install build-essential man gcc-doc gdb valgrind git wget \
   libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev \
-  libfmt-dev libgoogle-glog-dev
+  libfmt-dev libgoogle-glog-dev xxd
 
 warn "Ensure submodules exist"
 init NJU-ProjectN/fceux-am ics2021 fceux-am
 init NJU-ProjectN/nvboard master nvboard
 init OSCPU/yosys-sta master yosys-sta
+init NJU-ProjectN/am-kernels ics2021 am-kernels
 
 warn "Now you should add following lines to .bashrc"
 addenv NEMU_HOME nemu
