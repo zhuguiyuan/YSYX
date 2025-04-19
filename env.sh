@@ -28,9 +28,9 @@ function warn() {
 }
 
 warn "Install essential packages"
-sudo apt install build-essential man gcc-doc gdb git \
+sudo apt install build-essential man gcc-doc gdb valgrind git wget \
   libreadline-dev libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev \
-  libfmt-dev
+  libfmt-dev libgoogle-glog-dev
 
 warn "Ensure submodules exist"
 init NJU-ProjectN/fceux-am ics2021 fceux-am
