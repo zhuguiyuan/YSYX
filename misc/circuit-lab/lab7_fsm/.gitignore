@@ -1,0 +1,7 @@
+!.gitignore
+!Makefile
+!/*.cc
+!/*.v
+!/*.nxdc
+!/keymap.py
+!/README.md

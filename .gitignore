@@ -6,8 +6,12 @@
 !/nanos-lite/*
 !/navy-apps/*
 !/npc/*
+!/misc/*
 !Makefile
 !README.md
 !.gitignore
 !init.sh
+!env.sh
 /fceux-am
+/nvboard
+/yosys-sta
