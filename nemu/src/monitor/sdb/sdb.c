@@ -47,13 +47,13 @@ static int cmd_c(char *args) {
   return 0;
 }
 
-
 static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
   return -1;
 }
 
 static int cmd_help(char *args);
+static int cmd_si(char *args);
 
 static struct {
   const char *name;
@@ -62,6 +62,7 @@ static struct {
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
+  { "si", "Step the program by N (default 1) instructions", cmd_si },
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
@@ -89,6 +90,20 @@ static int cmd_help(char *args) {
       }
     }
     printf("Unknown command '%s'\n", arg);
+  }
+  return 0;
+}
+
+static int cmd_si(char *args) {
+  char *arg = strtok(NULL, " ");
+  int i = 1;
+  if (arg != NULL) {
+    i = atoi(arg);
+  }
+  if (i < 1) {
+    puts("Invalid argument: N should be a positive number");
+  } else {
+    cpu_exec(i);
   }
   return 0;
 }
