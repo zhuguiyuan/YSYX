@@ -1,6 +1,0 @@
-!*
-bin/
-/pdk/
-result
-*.log
-.stamp.init

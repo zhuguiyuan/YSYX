@@ -35,6 +35,7 @@ sudo apt install build-essential man gcc-doc gdb valgrind git wget \
 warn "Ensure submodules exist"
 init NJU-ProjectN/fceux-am ics2021 fceux-am
 init NJU-ProjectN/nvboard master nvboard
+init OSCPU/yosys-sta master yosys-sta
 
 warn "Now you should add following lines to .bashrc"
 addenv NEMU_HOME nemu
