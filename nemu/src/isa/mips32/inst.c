@@ -1,5 +1,5 @@
 /***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
+* Copyright (c) 2014-2024 Zihao Yu, Nanjing University
 *
 * NEMU is licensed under Mulan PSL v2.
 * You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -33,23 +33,25 @@ enum {
 #define immU() do { *imm = BITS(i, 15, 0); } while(0)
 
 static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
-  uint32_t i = s->isa.inst.val;
+  uint32_t i = s->isa.inst;
   int rt = BITS(i, 20, 16);
   int rs = BITS(i, 25, 21);
   *rd = (type == TYPE_U || type == TYPE_I) ? rt : BITS(i, 15, 11);
   switch (type) {
     case TYPE_I: src1R(); immI(); break;
     case TYPE_U: src1R(); immU(); break;
+    case TYPE_N: break;
+    default: panic("unsupported type = %d", type);
   }
 }
 
 static int decode_exec(Decode *s) {
-  int rd = 0;
-  word_t src1 = 0, src2 = 0, imm = 0;
   s->dnpc = s->snpc;
 
-#define INSTPAT_INST(s) ((s)->isa.inst.val)
+#define INSTPAT_INST(s) ((s)->isa.inst)
 #define INSTPAT_MATCH(s, name, type, ... /* execute body */ ) { \
+  int rd = 0; \
+  word_t src1 = 0, src2 = 0, imm = 0; \
   decode_operand(s, &rd, &src1, &src2, &imm, concat(TYPE_, type)); \
   __VA_ARGS__ ; \
 }
@@ -69,6 +71,6 @@ static int decode_exec(Decode *s) {
 }
 
 int isa_exec_once(Decode *s) {
-  s->isa.inst.val = inst_fetch(&s->snpc, 4);
+  s->isa.inst = inst_fetch(&s->snpc, 4);
   return decode_exec(s);
 }

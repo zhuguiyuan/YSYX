@@ -1,0 +1,8 @@
+!hdlbits/*.sv
+!logisim-bin/*.py
+!logisim-bin/*.hex
+!logisim-bin/*.txt
+!logisim-bin/*.s
+!*.typ
+!*.circ
+!*.txt

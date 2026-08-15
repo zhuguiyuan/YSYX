@@ -12,6 +12,7 @@
 !.gitignore
 !init.sh
 !env.sh
-/fceux-am
 /nvboard
 /yosys-sta
+/am-kernels
+/fceux-am

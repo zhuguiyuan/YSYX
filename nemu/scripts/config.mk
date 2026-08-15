@@ -1,5 +1,5 @@
 #***************************************************************************************
-# Copyright (c) 2014-2022 Zihao Yu, Nanjing University
+# Copyright (c) 2014-2024 Zihao Yu, Nanjing University
 #
 # NEMU is licensed under Mulan PSL v2.
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -17,7 +17,7 @@ COLOR_RED := $(shell echo "\033[1;31m")
 COLOR_END := $(shell echo "\033[0m")
 
 ifeq ($(wildcard .config),)
-$(warning $(COLOR_RED)Warning: .config does not exists!$(COLOR_END))
+$(warning $(COLOR_RED)Warning: .config does not exist!$(COLOR_END))
 $(warning $(COLOR_RED)To build the project, first run 'make menuconfig'.$(COLOR_END))
 endif
 

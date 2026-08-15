@@ -1,0 +1,36 @@
+add(R):     0000000 rs2 rs1 000 rd       0110011
+R[rd] = R[rs1] + R[rs2]
+alu 计算结果是 R[rs1] + R[rs2]
+R 写入来源 alu
+
+addi(I):  imm[11:0]     rs1 000 rd       0010011
+R[rd] = R[rs1] + sext(imm)
+alu 计算结果是 R[rs1] + sext(imm)
+R 写入来源 alu
+
+lui(U):  imm[31:12]             rd       0110111
+R[rd] = imm << 12
+alu 计算结果是 imm << 12
+R 写入来源 alu
+
+lw(I):    imm[11:0]     rs1 010 rd       0000011
+R[rd] = sext(M[R[rs1] + sext(imm)][31:0])
+alu 计算结果是 R[rs1] + sext(imm)
+R 写入来源 mem
+
+lbu(I):   imm[11:0]     rs1 100 rd       0000011
+R[rd] = zext(M[R[rs1] + sext(imm)][7:0])
+alu 计算结果是 R[rs1] + sext(imm)
+R 写入来源 mem
+
+sw(S):    imm[11:5] rs2 rs1 010 imm[4:0] 0100011
+M[R[rs1] + sext(imm)] = R[rs2][31:0]
+R 不写
+
+sb(S):    imm[11:5] rs2 rs1 000 imm[4:0] 0100011
+M[R[rs1] + sext(imm)] = R[rs2][7:0]
+R 不写
+
+jalr(I):  imm[11:0]     rs1 000 rd       1100111
+R[rd] = PC + 4; PC = (R[rs1] + sext(imm)) & ~1
+R 写入来源 pc_nxt

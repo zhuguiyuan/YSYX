@@ -99,7 +99,8 @@ static void init_platform() {
       // allocate temporary memory
       extern char end;
       void *vaddr = (void *)&end - phdr[i].p_memsz;
-      uintptr_t pad = (uintptr_t)vaddr & 0xfff;
+      uintptr_t page_size = sysconf(_SC_PAGESIZE);
+      uintptr_t pad = (uintptr_t)vaddr & (page_size - 1);
       void *vaddr_align = vaddr - pad;
       uintptr_t size = phdr[i].p_memsz + pad;
       void *temp_mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -150,7 +151,9 @@ static void init_platform() {
 
   // save the context template
   save_example_context();
+#ifdef __x86_64__
   uc_example.uc_mcontext.fpregs = NULL; // clear the FPU context
+#endif
   __am_get_intr_sigmask(&uc_example.uc_sigmask);
 
   // disable interrupts by default

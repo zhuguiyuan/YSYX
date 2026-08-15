@@ -1,5 +1,5 @@
 /***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
+* Copyright (c) 2014-2024 Zihao Yu, Nanjing University
 *
 * NEMU is licensed under Mulan PSL v2.
 * You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -58,6 +58,7 @@ enum {
 
 static struct vm vm;
 static struct vcpu vcpu;
+static FILE *log_fp = NULL; // only to pass linking
 
 // This should be called everytime after KVM_SET_REGS.
 // It seems that KVM_SET_REGS will clean the state of single step.
