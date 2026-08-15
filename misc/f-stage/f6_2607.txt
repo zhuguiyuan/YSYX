@@ -1,0 +1,168 @@
+指令集sISA:
+
+PC位宽为8位, 初值为0
+GPR有4个, 位宽均为8位
+一共四条指令，指令如下：
+
+ 7  6 5  4 3   2 1   0
++----+----+-----+-----+
+| 00 | rd | rs1 | rs2 | R[rd]=R[rs1]+R[rs2]
++----+----+---+-+-----+
+| 01 | rd |i/o|  idx  | R[rd]<=>dev[idx]
++----+----+---+-+-----+
+| 10 | rd |  s  | imm | R[rd]=imm << (s << 1)
++----+----+-----+-----+
+| 11 |  offset  | rs2 | if (R[0]!=R[rs2]) PC=PC+sign_ext(offset)
++----+----------+-----+
+
+一共两个输入设备：
+  idev0：8位拨码开关输入
+  idev1：8位按钮输入
+
+一共两个输出设备：
+  odev0：8位LED输出
+  odev1：8为七段数码管输出
+
+现在要实现指令求和程序:
+编写一段指令序列, 计算N以内的正整数之和, 即1+2+3+...+N
+需要同时达到如下效果：
+1. N 需要从 idev0 拨码开关输入。程序的整个生命周期 idev0 不变
+1. 在每次循环中, 将当前的项输出到LED, 将当前的求和结果输出到七段数码管
+3. 用按钮来控制循环的进度, 仅当每次按下表示最低位的按钮时, 程序才进入下一次循环
+4. PC 如果超过程序地址范围认为非法，而不是停机 halt
+5. 不需要做按钮的下降沿检测，也就是说如果按钮一直按下，则一直累加并输出到 N
+6. 认为 GPR 的初始值不确定。要么用 in 指令输入或者 li 初始化或者 add 从已知量初始化
+
+也即, 运行程序时, LED和七段数码管首先显示1和1; 用户按下表示最低位的按钮后, LED和七段数码管显示2和3; 用户按下表示最低位的按钮后, LED和七段数码管显示3和6......
+由于GPR的数量只有4个, 而且bner0指令中能容纳的偏移范围只有-8~7, 因此你可能需要精心设计GPR的使用方式, 来尽可能减少循环中的指令数量, 使得bner0跳转目标的偏移不超过指令的表示范围.
+
+Hint: 存在一种只需要12条指令的解决方案.
+Hint: 上面这个 Hint 可能是假的 Hint
+
+实际如果不考虑 1，而是认为 N 无限大，11条可以搞定
+
+```
+0b10010000,    # li r1, 0        ; acc = 0
+0b10100000,    # li r2, 0        ; sum = 0
+0b10110001,    # li r3, 1        ; inc = 1
+
+0b00011101,    # add r1, r3, r1  ; acc = acc + inc
+0b00101001,    # add r2, r2, r1  ; sum = sum + acc
+0b01011000,    # out r1, dev0    ; out acc
+0b01101001,    # out r2, dev1    ; out sum
+
+0b01000001,    # in  r0, dev1    ; key = input1
+0b11111111,    # bner0 r3, -1    ; if key != inc(1) goto -1
+
+0b10000000,    # li r0, 0        ;
+0b11100111,    # bner0 r3, -7    ; loop
+```
+
+如果要做按钮的释放检测，也就是按下然后释放才步进一个循环
+
+```
+0x90    li r1, 0               ; acc = 0
+0xA0    li r2, 0               ; sum = 0
+0xB1    li r3, 1               ; inc = 1
+
+0x1D    add r1, r3, r1         ; acc = acc + inc
+0x29    add r2, r2, r1         ; sum = sum + acc
+0x58    out r1, dev0           ; out acc
+0x69    out r2, dev1           ; out sum
+
+0x41    in r0, dev1            ; key = input
+0xFF    bner0 r3, -1           ; if key != inc(1) goto -1
+
+0x41    in r0, dev1            ; key = input
+0xE7    bner0 r3, -7           ; if key != r3(1) goto -7
+0x80    li r0, 0               ; r0 = 0
+0xF7    bner0 r3, -3           ; if r3(1) != r0(0) goto -3
+```
+
+如果末项目 N（要通过开关输入）, 怎么做？
+
+0b10010000,    # li r1, 0        ; acc
+0b10100000,    # li r2, 0        ; sum
+0b10110001,    # li r3, 1        ; inc
+
+0b00011101,    # add r1, r3, r1  ; acc = acc + inc
+0b00101001,    # add r2, r2, r1  ; sum = sum + acc
+0b01011000,    # out r1, dev0    ; out acc
+0b01101001,    # out r2, dev1    ; out sum
+
+0b01000001,    # in  r0, dev1    ; key = input1
+0b11111111,    # bner0 r3, -1    ; if key != inc(1) goto -1
+
+0b01000000,    # in  r0, dev0    ; max = input0
+0b11100101,    # bner0 r1, -7    ; if curr != max goto -7
+
+0b10000000,    # r0, 0           ; r0 = 0
+0b11000011,    # bner0 r3, 0     ; loop
+
+如果需要用 12 条指令完成：
+初始化 inc、sum、acc 共 3 条、acc +1 和 sum 累加 2 条、按键检测和跳转 2 条、拨码开关检测和跳转 2 条；自旋等待 1 条，一共 12 条。
+因此我们没有多余的指令来引入交换或者其他 li 之类的协调措施。
+
+因为 acc 和 sum 一直都是活跃，所以需要占据两个寄存器，inc 也占据一个寄存器。拨码开关的检测需要和 acc 比较，所以输入放 r0。
+按键可以和 acc 比较 != 1，复用 r0。但是自旋的时候需要 bner0，此时 r0 要么是 1（按键输入），要么是最大的 acc，而可以用来做自旋的寄存器，
+不论是 inc 还是 sum 还是 acc，都没有办法处理 N = 1 时候的自旋。
+
+所以我想这里最小的 12 条指令是要么放弃初始化（利用 rst 之后 gpr = 0 的特性），要么是忽略 N = 1 的情况，或者要么就不考虑用拨码输入最大值 N 的功能？
+
+或许可以用 SMT 来形式化一下？
+
+另外不限制指令数目，加上释放检测，可以这么做：
+
+0x90 li r1, 0
+0xA0 li r2, 0
+0xB1 li r3, 1
+
+0x1D add r1, r3, r1
+0x29 add r2, r2, r1
+0x58 out r1, odev0
+0x69 out r2, odev1
+
+0x40 in r0, idev0
+0xD1 bner r1, +4
+
+0x80 li r0, 0
+0xC3 bner0 r3, 0
+
+0xE3 bner0 r3, -8
+
+0x41 in r0, idev1
+0xFF bner r3, -1
+
+0x41 in r0, idev1
+0xF3 bner0 r3, -4
+0x80 li r0, 0
+0xF7 bner0 r3, -3
+
+上面这种技术叫做：branch trampoline / jump trampoline
+也叫做
+- branch island / jump island
+- veneer
+- long branch expansion
+- branch relaxation
+
+start:
+  c0
+  c1
+  c2
+  ...
+  cN-1
+  goto start (goto -N)
+
+<=>
+
+start:
+  c0
+  c1
+  goto cont (goto +2)
+jmp_back:
+  goto start (goto -3)
+cont:
+  c2
+  ...
+  cN-1
+  goto  jmp_back(goto -(N-1))
