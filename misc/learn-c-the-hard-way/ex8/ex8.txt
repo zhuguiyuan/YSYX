@@ -1,0 +1,4 @@
+1. 2. 3. See `ex8.c`
+
+4. x86-64 Unix-like LP64；x86-64 Windows x64 LLP64
+   RV64 LP64；RV32 ILP32
