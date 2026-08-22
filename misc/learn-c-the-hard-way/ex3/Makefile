@@ -1,3 +1,4 @@
+CFLAGS=-Wall
 all: ex3
 
 clean:
