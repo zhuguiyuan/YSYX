@@ -1,4 +1,4 @@
-1. 编译器的 warnning 很直接。Valgrind 表示
+1. 编译器的 warning 很直接。Valgrind 表示
 ==244122== Conditional jump or move depends on uninitialised value(s)
 ==244122==    at 0x48E0589: __printf_buffer (vfprintf-process-arg.c:217)
 ==244122==    by 0x48E1F90: __vfprintf_internal (vfprintf-internal.c:1544)

@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main(void) {
-  // printf(""); // warnning
+  // printf(""); // warning
   printf("%s", ""); // ok
   printf("% hhd, %-10hd, %+10d\n", 256, 256, 256);
   printf("%#hho, %#ho, %#o\n", 256, 256, 256);
