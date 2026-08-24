@@ -1,0 +1,10 @@
+1. INITIALIZER: 任意声明或表达式
+   TEST: 任意表达式
+   INCREMENTER: 任意表达式
+   CODE: 任意语句
+
+2. 逗号在这里形成逗号表达式，顺序 eval，值为最后一部分的值。
+
+3. NULL 是 __null 或许是 ((void*)0)；会打印出 (nil)。
+
+4. See `ex10.c`

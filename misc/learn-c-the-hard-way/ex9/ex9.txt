@@ -1,0 +1,11 @@
+1. 并不会得到警告。
+
+2. 也并不会有警告，Valgrind 像往常一样输出。
+
+3. printf("%s")、puts、fprintf；每次 printf("%c")、putchar、putc、fputc。
+
+4. cast 成 (int *) 然后解引用。
+
+5. Well...
+
+6. 并不能 name = "Ok?"; 数组和指针是不同的。

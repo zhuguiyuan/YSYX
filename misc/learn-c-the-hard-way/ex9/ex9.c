@@ -49,5 +49,27 @@ int main(int argc, char *argv[])
             another[0], another[1],
             another[2], another[3]);
 
+    numbers[0] = '2';
+    numbers[1] = '3';
+    numbers[2] = '3';
+    numbers[3] = '3';
+
+    printf("numbers: %d %d %d %d\n",
+            numbers[0], numbers[1],
+            numbers[2], numbers[3]);
+
+    name[0] = 97;
+    name[1] = 64;
+    name[2] = 12;
+    name[3] = 89;
+
+    printf("name each: %c %c %c %c\n",
+            name[0], name[1],
+            name[2], name[3]);
+
+    printf("%#x\n", *(int *)name);
+
+    name = "Ok?";
+
     return 0;
 }
