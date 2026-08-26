@@ -1,0 +1,8 @@
+1. See `Makefile`
+
+2. See `test.sh` and `Makefile`
+
+3. Well...
+
+4. see `ex19.c`, `game.h`, `game.c` and `ex19p.c`
+设计的是一个每次行动都会扣一点血的游戏。只要在规定的步数内到达有小黄鸭的房间并杀掉小黄鸭就获胜。
