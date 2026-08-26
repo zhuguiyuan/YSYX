@@ -1,0 +1,52 @@
+1. 在二进制中搜索到了三处前缀，分别对应三个比较函数的 code。
+
+2. 修改了帮助字符串所在的区域，现在会打印出修改后的字符。
+   然后把 reversed_order 的内容修改为了 sorted_order 的内容，
+   现在 reversed_order 排序结果和 sorted_order 一样了。
+
+3. 类型不匹配。
+ex18.c: In function ‘main’:
+ex18.c:152:58: error: passing argument 5 of ‘test_sorting’ from incompatible pointer type [-Wincompatible-pointer-types]
+  152 |   test_sorting(quick_sort, "quick_sort", numbers, count, die);
+      |                                                          ^~~
+      |                                                          |
+      |                                                          void (*)(const char *)
+ex18.c:110:30: note: expected ‘compare_cb’ {aka ‘int (*)(int,  int)’} but argument is of type ‘void (*)(const char *)’
+  110 |                   compare_cb cmp) {
+      |                   ~~~~~~~~~~~^~~
+make: *** [<内置>：ex18] 错误 1
+cast 成 void * 之后报错 “段错误（核心已转储）”。
+
+4. 如下：
+==708788== Jump to the invalid address stated on the next line
+==708788==    at 0x0: ???
+==708788==    by 0x109557: quick_sort (ex18.c:86)
+==708788==    by 0x1095E2: test_sorting (ex18.c:112)
+==708788==    by 0x1098AA: main (ex18.c:151)
+==708788==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==708788== 
+==708788== 
+==708788== Process terminating with default action of signal 11 (SIGSEGV): dumping core
+==708788==  Bad permissions for mapped region at address 0x0
+==708788==    at 0x0: ???
+==708788==    by 0x109557: quick_sort (ex18.c:86)
+==708788==    by 0x1095E2: test_sorting (ex18.c:112)
+==708788==    by 0x1098AA: main (ex18.c:151)
+==708788== 
+==708788== HEAP SUMMARY:
+==708788==     in use at exit: 1,064 bytes in 3 blocks
+==708788==   total heap usage: 9 allocs, 6 frees, 1,184 bytes allocated
+==708788== 
+==708788== LEAK SUMMARY:
+==708788==    definitely lost: 0 bytes in 0 blocks
+==708788==    indirectly lost: 0 bytes in 0 blocks
+==708788==      possibly lost: 0 bytes in 0 blocks
+==708788==    still reachable: 1,064 bytes in 3 blocks
+==708788==         suppressed: 0 bytes in 0 blocks
+==708788== Rerun with --leak-check=full to see details of leaked memory
+==708788== 
+==708788== For lists of detected and suppressed errors, rerun with: -s
+==708788== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+段错误（核心已转储）。
+
+5. See `ex18.c`
