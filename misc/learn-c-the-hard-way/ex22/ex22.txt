@@ -1,0 +1,60 @@
+1. Well...
+
+2. See `ex22_main.c`
+
+3. 输出类似下面的：
+==74727== Memcheck, a memory error detector
+==74727== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.
+==74727== Using Valgrind-3.24.0 and LibVEX; rerun with -h for copyright info
+==74727== Command: ./ex22_main
+==74727== 
+...
+==74727== Use of uninitialised value of size 8
+==74727==    at 0x48D598A: _itoa_word (_itoa.c:184)
+==74727==    by 0x48DFD59: __printf_buffer (vfprintf-process-arg.c:155)
+==74727==    by 0x48E1F90: __vfprintf_internal (vfprintf-internal.c:1544)
+==74727==    by 0x48D5E25: fprintf (fprintf.c:32)
+==74727==    by 0x1095D2: main (in /home/zhugy/Desktop/YSYX/misc/learn-c-the-hard-way/ex22/ex22_main)
+==74727== 
+==74727== Conditional jump or move depends on uninitialised value(s)
+==74727==    at 0x48D599C: _itoa_word (_itoa.c:184)
+==74727==    by 0x48DFD59: __printf_buffer (vfprintf-process-arg.c:155)
+==74727==    by 0x48E1F90: __vfprintf_internal (vfprintf-internal.c:1544)
+==74727==    by 0x48D5E25: fprintf (fprintf.c:32)
+==74727==    by 0x1095D2: main (in /home/zhugy/Desktop/YSYX/misc/learn-c-the-hard-way/ex22/ex22_main)
+==74727== 
+==74727== Conditional jump or move depends on uninitialised value(s)
+==74727==    at 0x48E0B73: __printf_buffer (vfprintf-process-arg.c:186)
+==74727==    by 0x48E1F90: __vfprintf_internal (vfprintf-internal.c:1544)
+==74727==    by 0x48D5E25: fprintf (fprintf.c:32)
+==74727==    by 0x1095D2: main (in /home/zhugy/Desktop/YSYX/misc/learn-c-the-hard-way/ex22/ex22_main)
+==74727== 
+[INFO] (ex22_main.c:66:main) frame(0) at 0x1ffefff100 is 0x1ffefff130
+[INFO] (ex22_main.c:66:main) frame(-1) at 0x1ffefff0f8 is 0x1095d3
+[INFO] (ex22_main.c:66:main) frame(-2) at 0x1ffefff0f0 is 0x233
+[INFO] (ex22_main.c:66:main) frame(-3) at 0x1ffefff0e8 is 0x233
+[INFO] (ex22_main.c:66:main) frame(-4) at 0x1ffefff0e0 is 0x18
+[INFO] (ex22_main.c:29:frame_hack) frame = 0x1ffefff100
+[INFO] (ex22_main.c:30:frame_hack) &bar = 0x1ffefff0f0
+==74727== Conditional jump or move depends on uninitialised value(s)
+==74727==    at 0x48E0B73: __printf_buffer (vfprintf-process-arg.c:186)
+==74727==    by 0x48E1F90: __vfprintf_internal (vfprintf-internal.c:1544)
+==74727==    by 0x48D5E25: fprintf (fprintf.c:32)
+==74727==    by 0x1092E8: frame_hack (in /home/zhugy/Desktop/YSYX/misc/learn-c-the-hard-way/ex22/ex22_main)
+==74727==    by 0x1095F9: main (in /home/zhugy/Desktop/YSYX/misc/learn-c-the-hard-way/ex22/ex22_main)
+==74727== 
+[INFO] (ex22_main.c:31:frame_hack) bar = 0x234
+==74727== 
+==74727== HEAP SUMMARY:
+==74727==     in use at exit: 0 bytes in 0 blocks
+==74727==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+==74727== 
+==74727== All heap blocks were freed -- no leaks are possible
+==74727== 
+==74727== Use --track-origins=yes to see where uninitialised values come from
+==74727== For lists of detected and suppressed errors, rerun with: -s
+==74727== ERROR SUMMARY: 60 errors from 4 contexts (suppressed: 0 from 0)
+
+4. Well...
+
+5. See `Makefile`
