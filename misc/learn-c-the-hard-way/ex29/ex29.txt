@@ -1,0 +1,7 @@
+1. See `src/libex29.c`
+
+2. See `Makefile`
+
+3. See `tests/ex29_tests.c`
+
+4. 大概阅读了一下 man dlopen
