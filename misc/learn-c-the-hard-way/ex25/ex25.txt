@@ -1,0 +1,5 @@
+1. Well...
+
+2. See `ex25.c`
+
+3. 包含一个类型 va_list 和四个函数 va_start，va_arg，va_end 和 va_copy。
