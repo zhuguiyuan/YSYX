@@ -3,6 +3,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifdef NDEBUG
@@ -47,5 +48,15 @@
     errno = 0;                                                                 \
     goto error;                                                                \
   }
+
+#ifdef NDEBUG
+#define invariant_debug(A, M, ...)
+#else
+#define invariant_debug(A, M, ...)                                             \
+  if (!(A)) {                                                                  \
+    debug(M, ##__VA_ARGS__);                                                   \
+    abort();                                                                   \
+  }
+#endif
 
 #endif

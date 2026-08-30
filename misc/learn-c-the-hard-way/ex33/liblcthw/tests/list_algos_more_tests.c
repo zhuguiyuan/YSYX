@@ -54,19 +54,17 @@ char *test_bubble_sort() {
   return NULL;
 }
 
-char *test_merge_sort() {
+char *test_merge_sort_inplace() {
   List *words = create_words();
 
   // should work on a list that needs sorting
-  List *res = List_merge_sort(words, (List_compare)strcmp);
-  mu_assert(is_sorted(res), "Words are not sorted after merge sort.");
+  List_merge_sort_inplace(words, (List_compare)strcmp);
+  mu_assert(is_sorted(words), "Words are not sorted after merge sort.");
 
-  List *res2 = List_merge_sort(res, (List_compare)strcmp);
-  mu_assert(is_sorted(res), "Should still be sorted after merge sort.");
-  List_destroy(res2);
-  List_destroy(res);
-
+  List_merge_sort_inplace(words, (List_compare)strcmp);
+  mu_assert(is_sorted(words), "Should still be sorted after merge sort.");
   List_destroy(words);
+
   return NULL;
 }
 
@@ -74,7 +72,7 @@ char *all_tests() {
   mu_suite_start();
 
   mu_run_test(test_bubble_sort);
-  mu_run_test(test_merge_sort);
+  mu_run_test(test_merge_sort_inplace);
 
   return NULL;
 }
