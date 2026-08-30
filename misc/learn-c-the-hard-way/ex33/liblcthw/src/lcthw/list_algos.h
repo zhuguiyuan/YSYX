@@ -11,4 +11,6 @@ List *List_merge_sort(List *list, List_compare cmp);
 
 int List_merge_sort_inplace(List *list, List_compare cmp);
 
+int List_insert_sorted(List *list, void *value, List_compare cmp);
+
 #endif

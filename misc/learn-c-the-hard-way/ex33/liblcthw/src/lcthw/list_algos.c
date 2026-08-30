@@ -263,7 +263,7 @@ int List_merge_sort_inplace(List *list, List_compare cmp) {
   check(rc == 0, "List_merge_sort_inplace: failed to sort left");
   invariant_debug(is_sorted(left, cmp), "invariant check left sorted");
 
-  List_merge_sort_inplace(right, cmp);
+  rc = List_merge_sort_inplace(right, cmp);
   check(rc == 0, "List_merge_sort_inplace: failed to sort right");
   invariant_debug(is_sorted(right, cmp), "invariant check right sorted");
 
