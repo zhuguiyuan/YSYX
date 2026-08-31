@@ -68,16 +68,15 @@ error:
   return NULL;
 }
 
-List *List_merge_sort(List *list, List_compare cmp) {
+int List_merge_sort(List *list, List_compare cmp) {
   if (cmp == NULL || list == NULL || List_count(list) <= 1) {
-    return list;
+    return 0;
   }
 
   List *left = NULL;
   List *right = NULL;
-  void *val = NULL;
-  List *sort_left = NULL;
-  List *sort_right = NULL;
+  List *merge = NULL;
+  void *valuep = NULL;
   int rc = 0;
 
   left = List_create(list->copy_fn, list->free_fn);
@@ -87,53 +86,43 @@ List *List_merge_sort(List *list, List_compare cmp) {
 
   int middle = List_count(list) / 2;
 
-  LIST_FOREACH(list, first, next, cur) {
+  while (List_count(list) != 0) {
+    valuep = List_shift(list);
     if (middle > 0) {
-      val = ListNode_value_copy(list->copy_fn, cur);
-      check_mem(val);
-      rc = List_push(left, val);
+      rc = List_push(left, valuep);
       check(rc == 0, "List_merge_sort: Failed to List_push");
-      val = NULL;
     } else {
-      val = ListNode_value_copy(list->copy_fn, cur);
-      check_mem(val);
-      rc = List_push(right, val);
+      rc = List_push(right, valuep);
       check(rc == 0, "List_merge_sort: Failed to List_push");
-      val = NULL;
     }
-
+    valuep = NULL;
     middle--;
   }
 
-  sort_left = List_merge_sort(left, cmp);
-  check_mem(sort_left);
-  if (sort_left != left) {
-    List_destroy(left);
-  }
-  left = NULL;
+  rc = List_merge_sort(left, cmp);
+  check(rc == 0, "List_merge_sort: Failed to sort left");
 
-  sort_right = List_merge_sort(right, cmp);
-  check_mem(sort_right);
-  if (sort_right != right) {
-    List_destroy(right);
-  }
-  right = NULL;
+  rc = List_merge_sort(right, cmp);
+  check(rc == 0, "List_merge_sort: Failed to sort right");
 
-  List *result = List_merge(sort_left, sort_right, cmp);
-  check_mem(result);
-  List_destroy(sort_left);
-  List_destroy(sort_right);
-  return result;
+  merge = List_merge(left, right, cmp);
+  check_mem(merge);
 
-error:
-  if (val && list->free_fn) {
-    list->free_fn(val);
-  }
+  *list = *merge;
+  free(merge);
   List_destroy(left);
   List_destroy(right);
-  List_destroy(sort_left);
-  List_destroy(sort_right);
-  return NULL;
+
+  return 0;
+
+error:
+  if (valuep && list->free_fn) {
+    list->free_fn(valuep);
+  }
+  List_destroy(merge);
+  List_destroy(left);
+  List_destroy(right);
+  return -1;
 }
 
 static inline int is_sorted(List *list, List_compare cmp) {
@@ -193,11 +182,10 @@ static inline List *List_merge_inplace(List *left, List *right,
                                        List_compare cmp) {
   if (List_count(left) == 0) {
     *left = *right;
-    free(right);
+    *right = (List){0};
     return left;
   }
   if (right->count == 0) {
-    free(right);
     return left;
   }
 
@@ -233,8 +221,8 @@ static inline List *List_merge_inplace(List *left, List *right,
   left->first->prev = NULL;
   left->last = tail;
   left->count = left->count + right->count;
+  *right = (List){0};
 
-  free(right);
   return left;
 }
 
@@ -268,6 +256,9 @@ int List_merge_sort_inplace(List *list, List_compare cmp) {
   invariant_debug(is_sorted(right, cmp), "invariant check right sorted");
 
   List_merge_inplace(left, right, cmp);
+  invariant_debug(List_count(right) == 0,
+                  "after List_merge_inplace, right must be empty.");
+  free(right);
   invariant_debug(is_sorted(list, cmp), "invariant check result sorted");
 
   free(split);
@@ -275,5 +266,100 @@ int List_merge_sort_inplace(List *list, List_compare cmp) {
 
 error:
   free(split);
+  return -1;
+}
+
+int List_insert_sorted(List *list, void *value, List_compare cmp) {
+  ListNode *new_node = NULL;
+  check(list != NULL && value != NULL && cmp != NULL,
+        "List_insert_sorted: invalid arguments");
+
+  ListNode *after = NULL;
+  LIST_FOREACH(list, first, next, curr) {
+    if (cmp(value, curr->value) >= 0) {
+      after = curr;
+    } else {
+      break;
+    }
+  }
+  if (after == NULL) {
+    int rc = List_unshift(list, value);
+    check(rc == 0, "List_insert_sorted: failed to unshift value");
+  } else if (after->next == NULL) {
+    int rc = List_push(list, value);
+    check(rc == 0, "List_insert_sorted: failed to push value");
+  } else {
+    new_node = malloc(sizeof(ListNode));
+    check_mem(new_node);
+    new_node->value = value;
+    new_node->prev = after;
+    new_node->next = after->next;
+    after->next->prev = new_node;
+    after->next = new_node;
+    list->count++;
+  }
+  return 0;
+
+error:
+  if (new_node)
+    free(new_node);
+  return -1;
+}
+
+int List_merge_sort_bottom_up(List *list, List_compare cmp) {
+  List *merge_queue[32] = {NULL};
+  List *carry = NULL;
+  void *valuep = NULL;
+  int i = 0;
+  int rc = 0;
+
+  if (cmp == NULL || list == NULL || List_count(list) <= 1) {
+    return 0;
+  }
+
+  carry = List_create(list->copy_fn, list->free_fn);
+  check_mem(carry);
+  for (i = 0; i < 32; ++i) {
+    merge_queue[i] = List_create(list->copy_fn, list->free_fn);
+    check_mem(merge_queue[i]);
+  }
+
+  while (List_count(list) != 0) {
+    valuep = List_shift(list);
+    rc = List_unshift(carry, valuep);
+    check(rc == 0, "List_merge_sort_bottom_up: failed to unshift valuep");
+    valuep = NULL;
+
+    for (i = 0; i < 32 && List_count(merge_queue[i]) != 0; ++i) {
+      List_merge_inplace(merge_queue[i], carry, cmp);
+      invariant_debug(List_count(carry) == 0,
+                      "after List_merge_inplace, right list must be empty");
+
+      List *tmp = carry;
+      carry = merge_queue[i];
+      merge_queue[i] = tmp;
+    }
+
+    if (i == 32) {
+      i -= 1;
+    }
+    List_merge_inplace(merge_queue[i], carry, cmp);
+  }
+
+  for (i = 0; i < 32; ++i) {
+    List_merge_inplace(list, merge_queue[i], cmp);
+    free(merge_queue[i]);
+  }
+  free(carry);
+  return 0;
+
+error:
+  if (list && list->free_fn && valuep) {
+    list->free_fn(valuep);
+  }
+  for (int i = 0; i < 32; ++i) {
+    List_destroy(merge_queue[i]);
+  }
+  List_destroy(carry);
   return -1;
 }

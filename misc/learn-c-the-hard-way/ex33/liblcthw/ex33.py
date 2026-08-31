@@ -3,44 +3,62 @@ import math
 import matplotlib.pyplot as plt
 
 bench_result = """
-compare_bubble 50000 17.038408
-compare_merge 50000 0.049954
-compare_merge_inplace 50000 0.008849
-bench_merge_inplace 5000 0.001633
-bench_merge_inplace 10000 0.002727
-bench_merge_inplace 20000 0.006431
-bench_merge_inplace 40000 0.008399
-bench_merge_inplace 80000 0.038174
-bench_merge_inplace 160000 0.066150
-bench_merge_inplace 320000 0.136932
-bench_merge_inplace 640000 0.290223
-bench_merge_inplace 1280000 0.717930
-bench_merge_inplace 2560000 1.559077
-bench_merge_inplace 5120000 3.286789
-bench_merge_inplace 10240000 7.125488
-bench_merge_inplace 20480000 15.943984
-bench_merge 5000 0.003412
-bench_merge 10000 0.018972
-bench_merge 20000 0.033385
-bench_merge 40000 0.082210
-bench_merge 80000 0.124701
-bench_merge 160000 0.198572
-bench_merge 320000 0.431403
-bench_merge 640000 1.002157
-bench_merge 1280000 2.243391
-bench_merge 2560000 4.864938
-bench_merge 5120000 10.726529
-bench_merge 10240000 23.556838
-bench_bubble 5000 0.075627
-bench_bubble 10000 0.343810
-bench_bubble 15000 0.836740
-bench_bubble 20000 1.556608
-bench_bubble 25000 2.557616
-bench_bubble 30000 3.726110
-bench_bubble 35000 5.273947
-bench_bubble 40000 7.400632
-bench_bubble 45000 9.423844
-bench_bubble 50000 13.135987
+RUNNING: ./tests/list_algos_time_tests
+compare_bubble 50000 13.052195
+compare_merge 50000 0.044079
+compare_merge_inplace 50000 0.014179
+compare_merge_bottom_up 50000 0.011177
+bench_merge_bottom_up 5000 0.000447
+bench_merge_bottom_up 10000 0.000975
+bench_merge_bottom_up 20000 0.002565
+bench_merge_bottom_up 40000 0.005134
+bench_merge_bottom_up 80000 0.020187
+bench_merge_bottom_up 160000 0.050896
+bench_merge_bottom_up 320000 0.112951
+bench_merge_bottom_up 640000 0.260410
+bench_merge_bottom_up 1280000 0.617391
+bench_merge_bottom_up 2560000 1.354108
+bench_merge_bottom_up 5120000 3.071656
+bench_merge_bottom_up 10240000 7.034350
+bench_merge_bottom_up 20480000 15.836046
+bench_merge_inplace 5000 0.001494
+bench_merge_inplace 10000 0.003277
+bench_merge_inplace 20000 0.006954
+bench_merge_inplace 40000 0.016800
+bench_merge_inplace 80000 0.019258
+bench_merge_inplace 160000 0.045173
+bench_merge_inplace 320000 0.106519
+bench_merge_inplace 640000 0.245967
+bench_merge_inplace 1280000 0.565000
+bench_merge_inplace 2560000 1.291202
+bench_merge_inplace 5120000 2.925557
+bench_merge_inplace 10240000 6.847243
+bench_merge_inplace 20480000 15.352949
+bench_merge 5000 0.002135
+bench_merge 10000 0.004600
+bench_merge 20000 0.009817
+bench_merge 40000 0.021365
+bench_merge 80000 0.057709
+bench_merge 160000 0.129230
+bench_merge 320000 0.281514
+bench_merge 640000 0.611174
+bench_merge 1280000 1.352975
+bench_merge 2560000 2.851534
+bench_merge 5120000 6.360520
+bench_merge 10240000 14.103243
+bench_bubble 5000 0.078591
+bench_bubble 10000 0.315391
+bench_bubble 15000 0.801684
+bench_bubble 20000 1.512634
+bench_bubble 25000 2.428786
+bench_bubble 30000 3.582096
+bench_bubble 35000 5.198738
+bench_bubble 40000 6.973998
+bench_bubble 45000 10.307188
+bench_bubble 50000 13.488033
+ALL TESTS PASSED
+Tests run: 5
+tests/list_algos_time_tests PASS
 """
 
 
@@ -90,6 +108,7 @@ def fit_and_plot(name, model_name, feature_fn, marker):
     plt.plot(scale, fitted, "--", label=f"{name} fit: {model_name}")
 
 
+fit_and_plot("bench_merge_bottom_up", "n log2(n)", lambda n: n * math.log2(n), "s-")
 fit_and_plot("bench_merge_inplace", "n log2(n)", lambda n: n * math.log2(n), "s-")
 fit_and_plot("bench_merge", "n log2(n)", lambda n: n * math.log2(n), "^-")
 fit_and_plot("bench_bubble", "n^2", lambda n: n * n, ".-")
