@@ -11,8 +11,11 @@ TESTS=$(patsubst %.c,%,$(TEST_SRC))
 TARGET=build/liblcthw.a
 SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
 
+BIN_SOURCES=$(wildcard bin/**/*.c bin/*.c)
+BINS=$(patsubst %.c,%,$(BIN_SOURCES))
+
 # The Target Build
-all: $(TARGET) $(SO_TARGET) tests
+all: $(TARGET) $(SO_TARGET) bins tests
 
 dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
 dev: all
@@ -27,19 +30,25 @@ $(SO_TARGET): $(TARGET) $(OBJECTS)
 
 build:
 	@mkdir -p build
+	@mkdir -p bin
 
 # The Unit Tests
-.PHONY: tests
-$(TESTS): $(TARGET)
-tests: $(TESTS)
-	sh ./tests/runtests.sh
+.PHONY: tests bins
+
+TEST_TOOL = tests/runtests.sh
+
+bins tests: LDLIBS += $(TARGET)
+bins: $(BINS)
+tests: $(TEST_TOOL) $(TESTS)
+	$(TEST_TOOL)
 
 valgrind:
-	VALGRIND="valgrind --log-file=/tmp/valgrind-%p.log" $(MAKE)
+# 	VALGRIND="valgrind --log-file=/tmp/valgrind-%p.log" $(MAKE)
+	VALGRIND="valgrind" $(MAKE)
 
 # The Cleaner
 clean:
-	rm -rf build $(OBJECTS) $(TESTS)
+	rm -rf build $(OBJECTS) $(TESTS) $(BINS)
 	rm -f tests/tests.log
 	find . -name "*.gc*" -exec rm {} \;
 	rm -rf `find . -name "*.dSYM" -print`
@@ -54,3 +63,6 @@ BADFUNCS='[^_.>a-zA-Z0-9](str(n?cpy|n?cat|xfrm|n?dup|str|pbrk|tok|_)|stpn?cpy|a?
 check:
 	@echo Files with potentially dangerous functions.
 	@egrep $(BADFUNCS) $(SOURCES) || true
+
+ide:
+	bear -- $(MAKE) dev

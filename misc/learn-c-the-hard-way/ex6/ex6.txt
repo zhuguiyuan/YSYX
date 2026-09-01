@@ -1,0 +1,3 @@
+1. 改成 printf("I have an initial %s.\n", initial);
+
+2. 3. 4. See `ex6_extra.c`

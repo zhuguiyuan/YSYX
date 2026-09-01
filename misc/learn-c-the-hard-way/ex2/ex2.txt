@@ -1,0 +1,14 @@
+1. See Makefile
+
+2. make -B 可以 always make；-C 切工作目录；-f 指定文件等。
+
+3. manpage 的 -Wall 节详细列出了 -Wall 具体开启了哪些 warning，有一个列表。
+   -g 选项开启的调试模式有 stabs、COFF、XCOFF 和 DWARF 等关键词。
+   在大多数系统中 -g 开会开一些其他特性，这些特性可能会让 gdb 工作更好但是让其他调试器崩溃。
+   -g 的确是可以和 -O 一起用的……
+
+4. 添加了 .PHONY 伪目标作为对 all 和 clean 的改进。
+
+5. YSYX 项目框架的 Makefile，提供了一个 .git-commit 目标用来跟踪开发记录，
+   然后用一个 git_commit 原型来封装。其他具体的 Makefile 规则由子项目实现。
+   子项目应该会包含这个根目录的 Makefile。

@@ -1,31 +1,24 @@
 #include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
+#define NAME_LEN 50
 
 struct Person {
-  char *name;
+  char name[NAME_LEN];
   int age;
   int height;
   int weight;
 };
 
-struct Person Person_create(char *name, int age, int height, int weight) {
-  struct Person who;
+struct Person Person_create(const char *name, int age, int height, int weight) {
+  struct Person who = {0};
 
-  who.name = strdup(name);
+  snprintf(who.name, NAME_LEN, "%s", name);
   who.age = age;
   who.height = height;
   who.weight = weight;
 
   return who;
-}
-
-void Person_destroy(struct Person *who) {
-  assert(who != NULL);
-
-  free(who->name);
-  who->name = NULL;
 }
 
 void Person_print(struct Person who) {
@@ -56,10 +49,6 @@ int main(int argc, char *argv[]) {
   frank.age += 20;
   frank.weight += 20;
   Person_print(frank);
-
-  // destroy them both so we clean up
-  Person_destroy(&joe);
-  Person_destroy(&frank);
 
   return 0;
 }

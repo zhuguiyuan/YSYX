@@ -1,0 +1,17 @@
+-1: 考虑我这台机器的配置和工作情况：
+    ulimit -a 看到 max memory size 配置为 unlimited；
+    剩余内存大概 5.0 GiB，Swap 大概 12 GiB；
+    考虑留一些余量给其他程序；
+    所以单次 malloc 之后可以稳定用上的量估计在 15 GiB 到 17 GiB 之间
+
+1. 2. 3. See ex17.c
+
+4. 文件大小是 DatabaseMeta 的序列化，加上每个 AddressMeta 的序列化和字符串的序列化。
+
+5. Well...
+
+6. See `test_ex17p.py`
+
+7. Bad...
+
+8. See `stack.c`

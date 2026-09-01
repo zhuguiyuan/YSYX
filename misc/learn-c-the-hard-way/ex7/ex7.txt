@@ -1,0 +1,15 @@
+1. 打印了 (null)，valgrind 没有输出意料之外的东西。
+
+2. warning 超过了表示范围
+ex7.c: In function ‘main’:
+ex7.c:11:59: warning: integer overflow in expression of type ‘long int’ results in ‘-8267107579969142784’ [-Woverflow]
+   11 |     long universe_of_defects = 1L * 1024L * 1024L * 1024L * 78200002004L;
+      |     
+
+3. 打印成了取 mod 之后的值，也就是 -8267107579969142784。
+
+4. 改成 unsigned long 之后 overflow 就会回绕不会报 warning 了。
+
+5. 认为二进制比特序列被解释成无符号数字。
+
+6. 数字类型提升机制。

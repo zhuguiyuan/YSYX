@@ -34,5 +34,14 @@ int main(int argc, char *argv[])
     printf("name=\"%s\" and full_name=\"%s\"\n",
             name, full_name);
 
+    areas[0] = 2333;
+    printf("The first area is %d.\n", areas[0]);
+
+    name[1] = 'o';
+    printf("The new name is %s.\n", name);
+
+    areas[0] = name[0];
+    printf("The first area is %d.\n", areas[0]);
+
     return 0;
 }

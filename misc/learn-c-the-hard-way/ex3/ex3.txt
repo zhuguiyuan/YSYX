@@ -1,0 +1,12 @@
+1. Well...
+
+2. 分为几类
+    flag 标记：# 选择变体；0 使用 0 padding；- 修改为左对齐；空格 使用空格表示符号位；+ 总是显示数值的符号
+    长度标记：hh 选择 char；h 选择 short；l 选择 long；ll 选择 long long；对于有无符号都可以用。
+            L 跟着 aAeEfFgG 选择 long double；z 选择 site_t；t 选择 ptrdiff_t
+    类型转换标记：d i 选择 int；o u x X 选择 unsigned octal/decimal/hexadecimal；
+                e E double 的科学计数；f F double 的小数表示；g G 自动选择是 e E 还是 f F；a A 是浮点数的精确内部表示；
+                c char；lc wide char；s string；p void * pointer；n 反向获取写入了多少字符；
+                m 打印出 error 的 message。
+
+3. See Makefile

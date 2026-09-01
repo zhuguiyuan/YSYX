@@ -1,0 +1,10 @@
+1. 删除 char *argv[]，报 Warning
+ex1.c:3:5: warning: ‘main’ takes only zero or two arguments [-Wmain]
+    3 | int main(int argc){
+      |     ^~~~
+
+2. See `ex1.c`
+
+3. 文档将 fputc, putc, putchar, fputs, puts 在一起讲述。
+其中很有意思是 putc 和 fputc 等价但是是 macro 实现，可能多次对 stream 求值；
+fputs 是字符串和 stream 都加了 restrict 限定符（ref：《Linux C 编程一站式学习》）。

@@ -1,0 +1,3 @@
+1. VSCode 的 clangd 搭配 CodeLLDB 插件，使用 lldb 调试器。可以 ssh 到远程然后调试。
+
+2. See `ex31.c`，这里可以使用 coredumpctl 工具来找到核心转储文件以及打开 gdb。

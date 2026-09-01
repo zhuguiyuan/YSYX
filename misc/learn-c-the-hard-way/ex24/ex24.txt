@@ -1,0 +1,14 @@
+-2. scanf、fscanf、sscanf：ISO C 标准的常规函数，Linux 上的 glibc 会提供。
+    scanf_s、fscanf_s、sscanf_s：属于 C11 的 Annex K（边界检查接口），这是可选扩展，不是强制实现。
+    Linux 常用的 glibc 没有实现 Annex K，因此通常既没有对应头文件声明，也没有 man scanf_s。
+    Microsoft Visual C（MSVC）实现了这些函数，所以 Windows/MSVC 文档中经常能看到 scanf_s。
+
+-1. fscanf: 获取格式化输入；fgets 获取输入的 string；vscanf 和 vfscanf 是传递 va_list 的变体。
+    fopen 从 path 打开流；fdopen 把一个流关联到某个已经存在的文件描述符；freopen 重新打开一个流；fclose 关闭，fcloseall 关闭所有。
+    fseek 是操作文件的当前写入位置；ftell 是获取写入位置；
+    rewind 是把写入位置设置在最前面；fgetpos 和 fsetpos 是 ftell 和 fseek 的替换，并且不用传递 whence=SEEK_SET 参数。
+    这些函数的返回值都标记的是是否有错误。
+    文件描述符是内核提供的整数句柄抽象，使用 read/write/open/close 对其操作。流是在用户态的封装，加上了缓冲和格式化功能。
+    fwrite/fread 是二进制读写，可以用来序列化之类的。
+
+1. 2. 3. 4. See `ex24p.c`

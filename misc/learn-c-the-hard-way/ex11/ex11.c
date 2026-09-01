@@ -18,14 +18,16 @@ int main(int argc, char *argv[]) {
     i++;
   }
 
+  int i_max = argc < num_states ? argc : num_states;
+
   i = 0;
-  while (i < num_states) {
+  while (i < i_max) {
     states[i] = argv[i];
     i++;
   }
 
   i = 0; // watch for this
-  while (i < num_states && i < argc) {
+  while (i < i_max) {
     printf("state %d: %s\n", i, states[i]);
     i++;
   }

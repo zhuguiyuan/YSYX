@@ -1,0 +1,17 @@
+-4. 实现了 inplace 版本，消耗输入的参数的生命周期，产出一新的有序列表。
+
+-3. 优化是在元素比较少的时候使用插入排序或者其他内存交换小的排序来 cache 优化。
+
+-2. 没有办法用 List_join，可以 List_split，详细见 `list_algos.c`。
+
+-1. 实现了一个 invariant_check 宏，在没有定义 NDEBUG 的时候检查不变量。
+
+1. 2. 3. 实际上是 man 2 time。详细见 `tests/list_algo_time_tests.c`。
+
+4. 第一个是不能随机访问；第二个是链表的节点操作很麻烦；第三个是会涉及到非常多小对象分配。
+
+5. 这个对于插入操作很少的情况是很好的。如果是用这个函数来排序的话，等价于插入排序，也是 O(n^2)。
+
+6. See `list_algos.c`. 作为对比，性能测试的结果发现和 top_down 的 inplace 版本差不多。
+   因为内部使用了 merge inplace，并且小对象分配也之后 unshift 之后的 shift，这个感觉很容易被工具优化。
+   而非 inplace 版本的 memory trace 更加复杂……

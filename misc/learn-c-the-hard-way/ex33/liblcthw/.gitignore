@@ -7,3 +7,6 @@
 !*.c
 !*.h
 !*.sh
+!*.py
+!*.txt
+!time_result.png

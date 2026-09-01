@@ -1,0 +1,13 @@
+1. 编译器的 warning 很直接。Valgrind 表示
+==244122== Conditional jump or move depends on uninitialised value(s)
+==244122==    at 0x48E0589: __printf_buffer (vfprintf-process-arg.c:217)
+==244122==    by 0x48E1F90: __vfprintf_internal (vfprintf-internal.c:1544)
+==244122==    by 0x48D69AA: printf (printf.c:33)
+==244122==    by 0x109174: main (ex4.c:11)
+直接修复传递 age 即可。
+
+2. Valgrind 的 20 年：https://nnethercote.github.io/2022/07/27/twenty-years-of-valgrind.html
+
+3. 构建了 Lua 和 TIC-80。
+
+4. 看起来似乎是一堆被称为 tool 的工具组织起来的。构建系统使用了 GNU Autotools。

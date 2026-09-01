@@ -11,7 +11,7 @@
 !README.md
 !.gitignore
 !init.sh
-!env.sh
+!TODO
 /nvboard
 /yosys-sta
 /am-kernels

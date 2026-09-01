@@ -1,0 +1,69 @@
+CFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG $(OPTFLAGS)
+LIBS=-ldl $(OPTLIBS)
+PREFIX?=/usr/local
+
+SOURCES=$(wildcard src/**/*.c src/*.c)
+OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
+
+TEST_SRC=$(wildcard tests/*_tests.c)
+TESTS=$(patsubst %.c,%,$(TEST_SRC))
+
+TARGET=build/libex29.a
+SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
+
+BIN_SOURCES=$(wildcard bin/**/*.c bin/*.c)
+BINS=$(patsubst %.c,%,$(BIN_SOURCES))
+
+# The Target Build
+all: $(TARGET) $(SO_TARGET) bins tests
+
+dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
+dev: all
+
+$(TARGET): CFLAGS += -fPIC
+$(TARGET): build $(OBJECTS)
+	ar rcs $@ $(OBJECTS)
+	ranlib $@
+
+$(SO_TARGET): $(TARGET) $(OBJECTS)
+	$(CC) -shared -o $@ $(OBJECTS)
+
+build:
+	@mkdir -p build
+	@mkdir -p bin
+
+# The Unit Tests
+.PHONY: tests bins
+
+TEST_TOOL = tests/runtests
+$(TEST_TOOL): CFLAGS=-Wall -Wextra -O2 -Isrc -DNDEBUG
+# TEST_TOOL = tests/runtests.sh
+
+bins tests: CFLAGS += $(TARGET)
+bins: $(BINS)
+tests: $(TEST_TOOL) $(TESTS)
+	$(TEST_TOOL)
+
+valgrind:
+	VALGRIND="valgrind --log-file=/tmp/valgrind-%p.log" $(MAKE)
+
+# The Cleaner
+clean:
+	rm -rf build $(OBJECTS) $(TESTS) $(BINS)
+	rm -f tests/tests.log
+	find . -name "*.gc*" -exec rm {} \;
+	rm -rf `find . -name "*.dSYM" -print`
+
+# The Install
+install: all
+	install -d $(DESTDIR)/$(PREFIX)/lib/
+	install $(TARGET) $(DESTDIR)/$(PREFIX)/lib/
+
+# The Checker
+BADFUNCS='[^_.>a-zA-Z0-9](str(n?cpy|n?cat|xfrm|n?dup|str|pbrk|tok|_)|stpn?cpy|a?sn?printf|byte_)'
+check:
+	@echo Files with potentially dangerous functions.
+	@egrep $(BADFUNCS) $(SOURCES) || true
+
+ide:
+	bear -- $(MAKE)

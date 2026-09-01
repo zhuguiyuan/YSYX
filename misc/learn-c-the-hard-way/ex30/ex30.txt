@@ -1,0 +1,5 @@
+1. Well...
+
+2. 做了一个 Bash CheatSheet。
+   作用是找到所有 tests 下面以 _tests 结尾的文件，然后运行他们。
+   C 版本在 `tests/runtests.c` 中。
