@@ -27,7 +27,6 @@ int List_bubble_sort(List *list, List_compare cmp) {
 
 static inline List *List_merge(List *left, List *right, List_compare cmp) {
   List *result = NULL;
-  void *val = NULL;
   int rc = 0;
 
   result = List_create(left->copy_fn, left->free_fn);
@@ -36,32 +35,28 @@ static inline List *List_merge(List *left, List *right, List_compare cmp) {
   while (List_count(left) > 0 || List_count(right) > 0) {
     if (List_count(left) > 0 && List_count(right) > 0) {
       if (cmp(List_first(left), List_first(right)) <= 0) {
-        val = List_shift(left);
+        rc = List_push(result, List_first(left));
+        check(rc == 0, "List_merge: failed to List_push");
+        List_shift(left);
       } else {
-        val = List_shift(right);
+        rc = List_push(result, List_first(right));
+        check(rc == 0, "List_merge: failed to List_push");
+        List_shift(right);
       }
-      rc = List_push(result, val);
-      check(rc == 0, "List_merge: failed to List_push");
-      val = NULL;
     } else if (List_count(left) > 0) {
-      val = List_shift(left);
-      rc = List_push(result, val);
+      rc = List_push(result, List_first(left));
       check(rc == 0, "List_merge: failed to List_push");
-      val = NULL;
+      List_shift(left);
     } else if (List_count(right) > 0) {
-      val = List_shift(right);
-      rc = List_push(result, val);
+      rc = List_push(result, List_first(right));
       check(rc == 0, "List_merge: failed to List_push");
-      val = NULL;
+      List_shift(right);
     }
   }
 
   return result;
 
 error:
-  if (val && left->free_fn) {
-    left->free_fn(val);
-  }
   if (result) {
     List_destroy(result);
   }
@@ -76,7 +71,6 @@ int List_merge_sort(List *list, List_compare cmp) {
   List *left = NULL;
   List *right = NULL;
   List *merge = NULL;
-  void *valuep = NULL;
   int rc = 0;
 
   left = List_create(list->copy_fn, list->free_fn);
@@ -87,7 +81,7 @@ int List_merge_sort(List *list, List_compare cmp) {
   int middle = List_count(list) / 2;
 
   while (List_count(list) != 0) {
-    valuep = List_shift(list);
+    void *valuep = List_first(list);
     if (middle > 0) {
       rc = List_push(left, valuep);
       check(rc == 0, "List_merge_sort: Failed to List_push");
@@ -95,7 +89,7 @@ int List_merge_sort(List *list, List_compare cmp) {
       rc = List_push(right, valuep);
       check(rc == 0, "List_merge_sort: Failed to List_push");
     }
-    valuep = NULL;
+    List_shift(list);
     middle--;
   }
 
@@ -116,9 +110,6 @@ int List_merge_sort(List *list, List_compare cmp) {
   return 0;
 
 error:
-  if (valuep && list->free_fn) {
-    list->free_fn(valuep);
-  }
   List_destroy(merge);
   List_destroy(left);
   List_destroy(right);
@@ -309,7 +300,6 @@ error:
 int List_merge_sort_bottom_up(List *list, List_compare cmp) {
   List *merge_queue[32] = {NULL};
   List *carry = NULL;
-  void *valuep = NULL;
   int i = 0;
   int rc = 0;
 
@@ -325,10 +315,9 @@ int List_merge_sort_bottom_up(List *list, List_compare cmp) {
   }
 
   while (List_count(list) != 0) {
-    valuep = List_shift(list);
-    rc = List_unshift(carry, valuep);
+    rc = List_unshift(carry, List_first(list));
     check(rc == 0, "List_merge_sort_bottom_up: failed to unshift valuep");
-    valuep = NULL;
+    List_shift(list);
 
     for (i = 0; i < 32 && List_count(merge_queue[i]) != 0; ++i) {
       List_merge_inplace(merge_queue[i], carry, cmp);
@@ -354,9 +343,6 @@ int List_merge_sort_bottom_up(List *list, List_compare cmp) {
   return 0;
 
 error:
-  if (list && list->free_fn && valuep) {
-    list->free_fn(valuep);
-  }
   for (int i = 0; i < 32; ++i) {
     List_destroy(merge_queue[i]);
   }
