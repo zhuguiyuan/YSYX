@@ -55,8 +55,6 @@
     goto error;                                                                \
   }
 
-#define check_mem(A) check((A), "Out of memory.")
-
 #define sentinel(M, ...)                                                       \
   {                                                                            \
     log_err(M, ##__VA_ARGS__);                                                 \
