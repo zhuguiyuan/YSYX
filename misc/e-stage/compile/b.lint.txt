@@ -1,0 +1,13 @@
+b.c:6:6: warning: Use of memory after it is freed [unix.Malloc]
+    6 |   *p = 0;
+      |   ~~ ^
+b.c:4:12: note: Memory is allocated
+    4 |   int *p = malloc(sizeof(*p) * 10);
+      |            ^~~~~~~~~~~~~~~~~~~~~~~
+b.c:5:3: note: Memory is released
+    5 |   free(p);
+      |   ^~~~~~~
+b.c:6:6: note: Use of memory after it is freed
+    6 |   *p = 0;
+      |   ~~ ^
+1 warning generated.
