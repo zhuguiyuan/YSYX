@@ -1,0 +1,10 @@
+!*.md
+!*.txt
+!*.c
+!*.h
+!*.ll
+!*.s
+!*.diff
+!*.sh
+!*.py
+!Makefile
