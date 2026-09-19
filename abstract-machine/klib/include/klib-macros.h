@@ -36,4 +36,14 @@
 
 #define panic(s) panic_on(1, s)
 
+#define _K_CLEANUP(func) __attribute__((cleanup(func)))
+void free (void *ptr);
+static inline void
+k_autoptr_cleanup_generic_free (void *p)
+{
+  void **pp = (void**)p;
+  free (*pp);
+}
+#define k_autofree _K_CLEANUP(k_autoptr_cleanup_generic_free)
+
 #endif
