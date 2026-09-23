@@ -3,6 +3,7 @@
 #include "inst.h"
 #include <am.h>
 #include <glib.h>
+#include <klib-macros.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,8 +69,8 @@ void mem_space_write(mem_space_t *m, uint32_t addr, uint32_t value,
     m->memory[addr >> 2] = new_value;
   } else if (mem_space_in_screen(m, addr)) {
     m->screen[(addr >> 2) & 0xFFFF] = value;
-    // TODO
-    sentinel("not implemented yet");
+    io_write(AM_GPU_FBDRAW, 0, 0, m->screen, m->screen_width_pixel,
+             m->screen_height_pixel, false);
   } else {
     sentinel("addr 0x%08x out of memory space", addr);
   }
