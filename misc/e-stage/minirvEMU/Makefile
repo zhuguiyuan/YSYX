@@ -1,21 +1,8 @@
-CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-LDLIBS   += $(shell pkg-config --libs glib-2.0)
-CFLAGS   += -MMD -MP
+export ARCH = native
 
-OBJS = main.o inst.o state.o
-all: main
-main: $(OBJS)
+NAME = minirvEMU
+SRCS = main.c state.c inst.c
+include $(AM_HOME)/Makefile
 
-DEPS = $(OBJS:.o=.d)
--include $(DEPS)
-
-dev: CFLAGS += -g
-dev: all
-
-clean:
-	rm -f main *.o *.d
-
-ide:
-	bear -- $(MAKE)
-
-.PHONY: all clean ide
+CFLAGS      += $(shell pkg-config --cflags glib-2.0) -g
+LDFLAGS_CXX += $(shell pkg-config --libs glib-2.0) -g
