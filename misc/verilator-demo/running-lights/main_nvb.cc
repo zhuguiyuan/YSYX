@@ -1,31 +1,40 @@
 #include <Vtop.h>
 #include <nvboard.h>
 
+struct SimulationState {
+  VerilatedContext ctx;
+  Vtop top;
+
+  SimulationState() : ctx{}, top{&ctx} {}
+
+  void single_cycle() {
+    top.clk = 0;
+    top.eval();
+    ctx.timeInc(1);
+    top.clk = 1;
+    top.eval();
+    ctx.timeInc(1);
+  }
+
+  void reset(int cycle) {
+    top.rst = 1;
+    while (cycle-- > 0)
+      single_cycle();
+    top.rst = 0;
+  };
+};
+
 void nvboard_bind_all_pins(Vtop *top);
 
 int main() {
-  auto top = Vtop{};
-  auto single_cycle = [&]() {
-    top.clk = 0;
-    top.eval();
-    top.clk = 1;
-    top.eval();
-  };
+  auto state = SimulationState{};
 
-  auto reset = [&](int n) {
-    top.rst = 1;
-    while (n-- > 0) {
-      single_cycle();
-    }
-    top.rst = 0;
-  };
-
-  nvboard_bind_all_pins(&top);
+  nvboard_bind_all_pins(&state.top);
   nvboard_init();
 
-  reset(10);
+  state.reset(10);
   while (1) {
     nvboard_update();
-    single_cycle();
+    state.single_cycle();
   }
 }

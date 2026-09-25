@@ -2,7 +2,6 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
-#include <verilated_fst_c.h>
 
 struct SimulationState {
   const uint64_t MAX_SIM_CYCLE = 50000000;
