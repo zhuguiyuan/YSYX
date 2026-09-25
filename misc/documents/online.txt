@@ -1,0 +1,4 @@
+GCC: https://gcc.gnu.org/onlinedocs/cpp/
+RISC-V ABI: https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-cc.adoc
+Yosys: https://yosyshq.readthedocs.io/projects/yosys/en/latest/
+iSTA: https://ieda.oscc.cc/tools/ieda-tools/ista.html#%E7%BC%96%E5%86%99tcl%E6%96%87%E4%BB%B6-run-ista-tcl
