@@ -12,7 +12,7 @@
 !.gitignore
 !init.sh
 !TODO
-/nvboard
 /yosys-sta
 /fceux-am
 /am-kernels
+/nvboard
