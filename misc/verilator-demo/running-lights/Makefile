@@ -44,6 +44,14 @@ $(MDIR_NVB)/Vtop: $(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(MDIR_NVB)/$(BIND_SR
 		$(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(BIND_SRC) \
 		-CFLAGS "$(CFLAGS)" -LDFLAGS "$(LDFLAGS)"
 
+MDIR_YOSYS = $(TARGET_DIR)/syn
+syn:
+	make -C $(STA_HOME) syn \
+		DESIGN=$(TOP_MODULE) O=$(realpath $(MDIR_YOSYS)) RTL_FILES=$(realpath $(VSRCS))
+
+sta:
+	make -C $(STA_HOME) sta \
+		DESIGN=$(TOP_MODULE) O=$(realpath $(MDIR_YOSYS)) RTL_FILES=$(realpath $(VSRCS))
 
 # Quick Commands
 sim: $(MDIR_SIM)/Vtop
@@ -55,4 +63,4 @@ nvb: $(MDIR_NVB)/Vtop
 clean:
 	rm -rf $(TARGET_DIR) $(WAVE_FILE)
 
-.PHONY: all sim nvb clean
+.PHONY: all sim nvb syn sta clean
