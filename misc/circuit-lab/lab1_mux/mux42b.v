@@ -12,9 +12,9 @@ module mux42b (
       .KEY_LEN (2),
       .DATA_LEN(2)
   ) i0 (
-      .out_o(f),
+      .value_i(f),
       .key_i(y),
-      .default_out_i(0),
+      .default_i(0),
       .lut_i({2'b00, x0, 2'b01, x1, 2'b10, x2, 2'b11, x3})
   );
 

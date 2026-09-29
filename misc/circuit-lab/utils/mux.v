@@ -5,9 +5,9 @@ module MuxKeyInternal #(
     DATA_LEN    = 1,
     HAS_DEFAULT = 0
 ) (
-    output reg [                   DATA_LEN-1:0] out_o,
+    output reg [                   DATA_LEN-1:0] value_o,
     input      [                    KEY_LEN-1:0] key_i,
-    input      [                   DATA_LEN-1:0] default_out_i,
+    input      [                   DATA_LEN-1:0] default_i,
     input      [NR_KEY*(KEY_LEN + DATA_LEN)-1:0] lut_i
 );
 
@@ -35,8 +35,8 @@ module MuxKeyInternal #(
             lut_out = lut_out | ({DATA_LEN{key_i == key_list[i]}} & data_list[i]);
             hit = hit | (key_i == key_list[i]);
         end
-        if (!HAS_DEFAULT) out_o = lut_out;
-        else out_o = (hit ? lut_out : default_out_i);
+        if (!HAS_DEFAULT) value_o = lut_out;
+        else value_o = (hit ? lut_out : default_i);
     end
 endmodule
 
@@ -46,12 +46,12 @@ module MuxKey #(
     KEY_LEN  = 1,
     DATA_LEN = 1
 ) (
-    output [                   DATA_LEN-1:0] out_o,
+    output [                   DATA_LEN-1:0] value_o,
     input  [                    KEY_LEN-1:0] key_i,
     input  [NR_KEY*(KEY_LEN + DATA_LEN)-1:0] lut_i
 );
     MuxKeyInternal #(NR_KEY, KEY_LEN, DATA_LEN, 0) i0 (
-        out_o,
+        value_o,
         key_i,
         {DATA_LEN{1'b0}},
         lut_i
@@ -64,15 +64,15 @@ module MuxKeyWithDefault #(
     KEY_LEN  = 1,
     DATA_LEN = 1
 ) (
-    output [                   DATA_LEN-1:0] out_o,
+    output [                   DATA_LEN-1:0] value_i,
     input  [                    KEY_LEN-1:0] key_i,
-    input  [                   DATA_LEN-1:0] default_out_i,
+    input  [                   DATA_LEN-1:0] default_i,
     input  [NR_KEY*(KEY_LEN + DATA_LEN)-1:0] lut_i
 );
     MuxKeyInternal #(NR_KEY, KEY_LEN, DATA_LEN, 1) i0 (
-        out_o,
+        value_i,
         key_i,
-        default_out_i,
+        default_i,
         lut_i
     );
 endmodule
