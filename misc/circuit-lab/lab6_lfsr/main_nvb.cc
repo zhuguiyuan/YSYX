@@ -10,7 +10,7 @@ int main() {
   nvboard_init();
 
   while (1) {
-    top.eval();
     nvboard_update();
+    top.eval();
   }
 }
