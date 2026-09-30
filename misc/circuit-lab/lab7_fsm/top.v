@@ -1,225 +1,135 @@
 module top (
-    input  wire       clk,
-    input  wire       rstn,
+    input wire clk_i,
+    input wire rst_ni,
 
-    input  wire       ps2_clk,
-    input  wire       ps2_data,
+    input wire ps2_clk_i,
+    input wire ps2_data_i,
 
-    output wire [7:0] bcd_code_lo,
-    output wire [7:0] bcd_code_hi,
-    output wire [7:0] bcd_ascii_lo,
-    output wire [7:0] bcd_ascii_hi,
-    output wire [7:0] bcd_cnt_lo,
-    output wire [7:0] bcd_cnt_hi,
+    output wire [8-1:0] bcd_raw_lo_o,
+    output wire [8-1:0] bcd_raw_hi_o,
+    output wire         bcd_raw_ext_o,
+    output wire [8-1:0] bcd_ascii_lo_o,
+    output wire [8-1:0] bcd_ascii_hi_o,
+    output wire [8-1:0] bcd_cnt_lo_o,
+    output wire [8-1:0] bcd_cnt_hi_o,
 
-    output wire       led_lshift,
-    output wire       led_rshift,
-    output wire       led_alt,
-    output wire       led_ctrl,
-    output wire       led_capslock,
+    output wire led_lshift_o,
+    output wire led_rshift_o,
+    output wire led_lalt_o,
+    output wire led_ralt_o,
+    output wire led_lctrl_o,
+    output wire led_rctrl_o,
+    output wire led_capslock_o,
 
-    output wire       led_error
+    output wire led_ps2_lost_o
 );
 
-  // output declaration of module ps2_system
-  wire       ps2_error;
-  wire       key_capslock_s;
-  wire       key_lshift_s;
-  wire       key_rshift_s;
-  wire       key_alt_s;
-  wire       key_ctrl_s;
-  wire       key_norm_s;
-  wire [7:0] key_norm_code;
+    wire         code_valid;
+    wire         code_down;
+    wire         code_up;
+    wire         code_extend;
+    wire [8-1:0] code_value;
+    wire         ctrl_valid;
+    wire         ctrl_lshift;
+    wire         ctrl_rshift;
+    wire         ctrl_lalt;
+    wire         ctrl_ralt;
+    wire         ctrl_lctrl;
+    wire         ctrl_rctrl;
+    wire         ctrl_capslock;
+    ps2_keyboard_driver u_ps2_keyboard_driver (
+        .clk_i          (clk_i),
+        .rst_ni         (rst_ni),
+        .ps2_clk_i      (ps2_clk_i),
+        .ps2_data_i     (ps2_data_i),
+        .ps_lost_o      (led_ps2_lost_o),
+        .code_valid_o   (code_valid),
+        .code_down_o    (code_down),
+        .code_up_o      (code_up),
+        .code_extend_o  (code_extend),
+        .code_value_o   (code_value),
+        .ctrl_valid_o   (ctrl_valid),
+        .ctrl_lshift_o  (ctrl_lshift),
+        .ctrl_rshift_o  (ctrl_rshift),
+        .ctrl_lalt_o    (ctrl_lalt),
+        .ctrl_ralt_o    (ctrl_ralt),
+        .ctrl_lctrl_o   (ctrl_lctrl),
+        .ctrl_rctrl_o   (ctrl_rctrl),
+        .ctrl_capslock_o(ctrl_capslock)
+    );
 
-  ps2_system u_ps2_system (
-    .clk            (clk           ),
-    .rstn           (rstn          ),
-    .ps2_clk        (ps2_clk       ),
-    .ps2_data       (ps2_data      ),
-    .ps2_error      (ps2_error     ),
-    .key_capslock_s (key_capslock_s),
-    .key_lshift_s   (key_lshift_s  ),
-    .key_rshift_s   (key_rshift_s  ),
-    .key_alt_s      (key_alt_s     ),
-    .key_ctrl_s     (key_ctrl_s    ),
-    .key_norm_s     (key_norm_s    ),
-    .key_norm_code  (key_norm_code )
-  );
+    // raw code
+    bcd_raw7seg u_raw7seg (
+        .clk_i        (clk_i),
+        .rst_ni       (rst_ni),
+        .code_valid_i (code_valid),
+        .code_down_i  (code_down),
+        .code_up_i    (code_up),
+        .code_extend_i(code_extend),
+        .code_value_i (code_value),
+        .bcd_raw_lo_o (bcd_raw_lo_o),
+        .bcd_raw_hi_o (bcd_raw_hi_o),
+        .bcd_raw_ext_o(bcd_raw_ext_o)
+    );
 
-  bcd7seg u_bcd_code_lo (
-    .en  	(key_norm_s        ),
-    .in  	(key_norm_code[3:0]),
-    .out 	(bcd_code_lo       )
-  );
+    // ascii code
+    bcd_ascii7seg u_ascii7seg (
+        .clk_i          (clk_i),
+        .rst_ni         (rst_ni),
+        .code_valid_i   (code_valid),
+        .code_down_i    (code_down),
+        .code_up_i      (code_up),
+        .code_extend_i  (code_extend),
+        .code_value_i   (code_value),
+        .ctrl_lshift_i  (ctrl_lshift),
+        .ctrl_rshift_i  (ctrl_rshift),
+        .ctrl_capslock_i(ctrl_capslock),
+        .bcd_ascii_lo_o (bcd_ascii_lo_o),
+        .bcd_ascii_hi_o (bcd_ascii_hi_o)
+    );
 
-  bcd7seg u_bcd_code_hi (
-    .en  	(key_norm_s        ),
-    .in  	(key_norm_code[7:4]),
-    .out 	(bcd_code_hi       )
-  );
+    // press count
+    bcd_cnt7seg u_cnt7seg (
+        .clk_i       (clk_i),
+        .rst_ni      (rst_ni),
+        .code_press_i(code_valid && code_down),
+        .bcd_cnt_lo_o(bcd_cnt_lo_o),
+        .bcd_cnt_hi_o(bcd_cnt_hi_o)
+    );
 
-  wire key_up_case = (key_lshift_s | key_rshift_s) ^ key_capslock_s;
-  wire [7:0] key_norm_ascii;
-  MuxKeyWithDefault #(
-    .NR_KEY(102),
-    .KEY_LEN(9),
-    .DATA_LEN(8)
-  ) u_MuxKeyWithDefault (
-    .out         	(key_norm_ascii              ),
-    .key         	({key_up_case, key_norm_code}),
-    .default_out 	(8'h00                       ),
-    .lut         	({
-      17'b00000111001100000,
-      17'b00001011000110001,
-      17'b00001111000110010,
-      17'b00010011000110011,
-      17'b00010010100110100,
-      17'b00010111000110101,
-      17'b00011011000110110,
-      17'b00011110100110111,
-      17'b00011111000111000,
-      17'b00100011000111001,
-      17'b00100010100110000,
-      17'b00100111000101101,
-      17'b00101010100111101,
-      17'b00001110001100001,
-      17'b00011001001100010,
-      17'b00010000101100011,
-      17'b00010001101100100,
-      17'b00010010001100101,
-      17'b00010101101100110,
-      17'b00011010001100111,
-      17'b00011001101101000,
-      17'b00100001101101001,
-      17'b00011101101101010,
-      17'b00100001001101011,
-      17'b00100101101101100,
-      17'b00011101001101101,
-      17'b00011000101101110,
-      17'b00100010001101111,
-      17'b00100110101110000,
-      17'b00001010101110001,
-      17'b00010110101110010,
-      17'b00001101101110011,
-      17'b00010110001110100,
-      17'b00011110001110101,
-      17'b00010101001110110,
-      17'b00001110101110111,
-      17'b00010001001111000,
-      17'b00011010101111001,
-      17'b00001101001111010,
-      17'b00101010001011011,
-      17'b00101101101011101,
-      17'b00101110101011100,
-      17'b00100110000111011,
-      17'b00101001000100111,
-      17'b00101101000001010,
-      17'b00100000100101100,
-      17'b00100100100101110,
-      17'b00100101000101111,
-      17'b00000110100001001,
-      17'b00010100100100000,
-      17'b00110011000001000,
-      17'b10000111001111110,
-      17'b10001011000100001,
-      17'b10001111001000000,
-      17'b10010011000100011,
-      17'b10010010100100100,
-      17'b10010111000100101,
-      17'b10011011001011110,
-      17'b10011110100100110,
-      17'b10011111000101010,
-      17'b10100011000101000,
-      17'b10100010100101001,
-      17'b10100111001011111,
-      17'b10101010100101011,
-      17'b10001110001000001,
-      17'b10011001001000010,
-      17'b10010000101000011,
-      17'b10010001101000100,
-      17'b10010010001000101,
-      17'b10010101101000110,
-      17'b10011010001000111,
-      17'b10011001101001000,
-      17'b10100001101001001,
-      17'b10011101101001010,
-      17'b10100001001001011,
-      17'b10100101101001100,
-      17'b10011101001001101,
-      17'b10011000101001110,
-      17'b10100010001001111,
-      17'b10100110101010000,
-      17'b10001010101010001,
-      17'b10010110101010010,
-      17'b10001101101010011,
-      17'b10010110001010100,
-      17'b10011110001010101,
-      17'b10010101001010110,
-      17'b10001110101010111,
-      17'b10010001001011000,
-      17'b10011010101011001,
-      17'b10001101001011010,
-      17'b10101010001111011,
-      17'b10101101101111101,
-      17'b10101110101111100,
-      17'b10100110000111010,
-      17'b10101001000100010,
-      17'b10101101000001010,
-      17'b10100000100111100,
-      17'b10100100100111110,
-      17'b10100101000111111,
-      17'b10000110100001001,
-      17'b10010100100100000,
-      17'b10110011000001000
-    })
-  );
-
-  bcd7seg u_bcd_ascii_lo (
-    .en  	(key_norm_s         ),
-    .in  	(key_norm_ascii[3:0]),
-    .out 	(bcd_ascii_lo       )
-  );
-
-  bcd7seg u_bcd_ascii_hi (
-    .en  	(key_norm_s         ),
-    .in  	(key_norm_ascii[7:4]),
-    .out 	(bcd_ascii_hi       )
-  );
-
-  // key_norm_data changing means key_norm_s 1 -> 0 -> 1
-  // so we can impl a counter outside the ps2_system
-  reg [7:0] key_norm_cnt_reg = 0;
-  reg norm_hist_reg = 0;
-  always @(posedge clk) begin
-    if (~rstn) begin
-      key_norm_cnt_reg <= 0;
-      norm_hist_reg <= 0;
-    end else begin
-      if (norm_hist_reg == 0 & key_norm_s == 1) begin
-        key_norm_cnt_reg <= key_norm_cnt_reg + 1;
-      end
-      norm_hist_reg <= key_norm_s;
+    // leds
+    reg ctrl_lshift_reg;
+    reg ctrl_rshift_reg;
+    reg ctrl_lalt_reg;
+    reg ctrl_ralt_reg;
+    reg ctrl_lctrl_reg;
+    reg ctrl_rctrl_reg;
+    reg ctrl_capslock_reg;
+    always @(posedge clk_i) begin
+        if (!rst_ni) begin
+            ctrl_lshift_reg   <= 1'b0;
+            ctrl_rshift_reg   <= 1'b0;
+            ctrl_lalt_reg     <= 1'b0;
+            ctrl_ralt_reg     <= 1'b0;
+            ctrl_lctrl_reg    <= 1'b0;
+            ctrl_rctrl_reg    <= 1'b0;
+            ctrl_capslock_reg <= 1'b0;
+        end else if (ctrl_valid) begin
+            ctrl_lshift_reg   <= ctrl_lshift;
+            ctrl_rshift_reg   <= ctrl_rshift;
+            ctrl_lalt_reg     <= ctrl_lalt;
+            ctrl_ralt_reg     <= ctrl_ralt;
+            ctrl_lctrl_reg    <= ctrl_lctrl;
+            ctrl_rctrl_reg    <= ctrl_rctrl;
+            ctrl_capslock_reg <= ctrl_capslock;
+        end
     end
-  end
-
-  wire [7:0] key_norm_cnt = key_norm_cnt_reg;
-  bcd7seg u_bcd_cnt_lo (
-    .en  	(1'b1             ),
-    .in  	(key_norm_cnt[3:0]),
-    .out 	(bcd_cnt_lo       )
-  );
-
-  bcd7seg u_bcd_cnt_hi (
-    .en  	(1'b1             ),
-    .in  	(key_norm_cnt[7:4]),
-    .out 	(bcd_cnt_hi       )
-  );
-
-  assign led_alt      = key_alt_s;
-  assign led_ctrl     = key_ctrl_s;
-  assign led_capslock = key_capslock_s;
-  assign led_lshift   = key_lshift_s;
-  assign led_rshift   = key_rshift_s;
-  assign led_error    = ps2_error;
+    assign led_lshift_o   = ctrl_lshift_reg;
+    assign led_rshift_o   = ctrl_rshift_reg;
+    assign led_lalt_o     = ctrl_lalt_reg;
+    assign led_ralt_o     = ctrl_ralt_reg;
+    assign led_lctrl_o    = ctrl_lctrl_reg;
+    assign led_rctrl_o    = ctrl_rctrl_reg;
+    assign led_capslock_o = ctrl_capslock_reg;
 
 endmodule

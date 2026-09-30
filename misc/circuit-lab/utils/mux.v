@@ -64,13 +64,13 @@ module MuxKeyWithDefault #(
     KEY_LEN  = 1,
     DATA_LEN = 1
 ) (
-    output [                   DATA_LEN-1:0] value_i,
+    output [                   DATA_LEN-1:0] value_o,
     input  [                    KEY_LEN-1:0] key_i,
     input  [                   DATA_LEN-1:0] default_i,
     input  [NR_KEY*(KEY_LEN + DATA_LEN)-1:0] lut_i
 );
     MuxKeyInternal #(NR_KEY, KEY_LEN, DATA_LEN, 1) i0 (
-        value_i,
+        value_o,
         key_i,
         default_i,
         lut_i

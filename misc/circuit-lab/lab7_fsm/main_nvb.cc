@@ -10,9 +10,9 @@ int main() {
   nvboard_init();
 
   auto single_cycle = [&]() {
-    top.clk = 0;
+    top.clk_i = 0;
     top.eval();
-    top.clk = 1;
+    top.clk_i = 1;
     top.eval();
   };
 
