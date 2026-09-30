@@ -1,5 +1,5 @@
 # Project Variables
-TOP_MODULE = top
+TOP_MODULE ?= top_static
 VSRCS = $(wildcard *.v) ../utils/mux.v
 TARGET_DIR = target
 
@@ -12,7 +12,7 @@ VERILATOR_FLAGS = -Wall -MMD -O3 --x-assign fast --x-initial fast \
 
 # NVBoard Targets
 CSRCS_NVB = main_nvb.cc
-NXDC_NVB = $(TOP_MODULE).nxdc
+NXDC_NVB = top.nxdc
 MDIR_NVB = $(TARGET_DIR)/nvb
 BIND_SRC = auto_pin_bind.cc
 
@@ -36,11 +36,11 @@ $(MDIR_NVB)/Vtop: $(VSRCS) $(CSRCS_NVB) $(NVBOARD_ARCHIVE) $(MDIR_NVB)/$(BIND_SR
 MDIR_YOSYS = $(TARGET_DIR)/syn
 syn:
 	make -C $(STA_HOME) syn O=$(abspath $(MDIR_YOSYS)) \
-		DESIGN=top CLK_PORT_NAME=clk_i RTL_FILES="$(abspath $(VSRCS))"
+		DESIGN=$(TOP_MODULE) CLK_PORT_NAME=clk_i RTL_FILES="$(abspath $(VSRCS))"
 
 sta:
 	make -C $(STA_HOME) sta O=$(abspath $(MDIR_YOSYS)) \
-		DESIGN=top CLK_PORT_NAME=clk_i RTL_FILES="$(abspath $(VSRCS))"
+		DESIGN=$(TOP_MODULE) CLK_PORT_NAME=clk_i RTL_FILES="$(abspath $(VSRCS))"
 
 # Quick Commands
 nvb: $(MDIR_NVB)/Vtop

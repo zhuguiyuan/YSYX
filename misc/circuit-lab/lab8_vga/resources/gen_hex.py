@@ -5,21 +5,19 @@ and write a $readmemh-compatible hex file, one RGB888 word per line."""
 import argparse
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageOps
 
+# W, H = 64, 128
+# STRIDE = 64
 W, H = 640, 480
-STRIDE = 1 << 9
+STRIDE = 1 << 10
 
 
 def letterbox(path: Path, w: int = W, h: int = H) -> Image.Image:
-    """Scale keeping aspect ratio, then pad with zeros (black)."""
-    img = Image.open(path).convert("RGB")
-    k = min(w / img.width, h / img.height)  # scale factor
-    nw, nh = max(1, round(img.width * k)), max(1, round(img.height * k))
-    small = img.resize((nw, nh), Image.Resampling.LANCZOS)
-    canvas = Image.new("RGB", (w, h))  # zero-filled
-    canvas.paste(small, ((w - nw) // 2, (h - nh) // 2))  # centered
-    return canvas
+    img = Image.open(path).convert("RGBA")
+    bg = Image.new("RGBA", img.size, "white")  # 白底，吞掉 PNG 透明区
+    pad = ImageOps.pad(Image.alpha_composite(bg, img), (w, h), color="white")
+    return pad.convert("RGB")
 
 
 if __name__ == "__main__":
@@ -32,8 +30,8 @@ if __name__ == "__main__":
     blank = "000000"
     # address = h*STRIDE + v  ==>  outer loop over h, inner loop over v
     lines = [
-        data[(v * W + h) * 3 : (v * W + h) * 3 + 3].hex() if v < H else blank
-        for h in range(W)
-        for v in range(STRIDE)
+        data[(v * W + h) * 3 : (v * W + h) * 3 + 3].hex() if h < W else blank
+        for v in range(H)
+        for h in range(STRIDE)
     ]
     args.dst.write_text("\n".join(lines) + "\n")

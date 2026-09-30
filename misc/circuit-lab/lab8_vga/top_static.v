@@ -1,4 +1,4 @@
-module top (
+module top_static (
     input  wire       clk_i,
     input  wire       rst_i,
     output wire       VGA_CLK_o,
@@ -54,17 +54,16 @@ module top (
         $readmemh("resources/66ccff.hex", vga_mem);
     end
 
-    // reg [24-1:0] vga_data_reg;
-    // always @(posedge clk_i) begin
-    //     vga_data_reg <= vga_mem[{h_addr_0d, v_addr_0d}];
-    // end
-    // assign vga_data_Nd = vga_data_reg;
+    reg [24-1:0] vga_data_reg;
+    always @(posedge clk_i) begin
+        vga_data_reg <= vga_mem[{v_addr_0d, h_addr_0d}];
+    end
     bits_slr #(
-        .DEPTH(DATA_DELAY_CYCLE),
+        .DEPTH(DATA_DELAY_CYCLE - 1),
         .WIDTH(24)
     ) u_0 (
         .clk_i(clk_i),
-        .d_i  (vga_mem[{h_addr_0d, v_addr_0d}]),
+        .d_i  (vga_data_reg),
         .q_o  (vga_data_Nd)
     );
 
