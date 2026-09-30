@@ -64,4 +64,4 @@ nvb: $(MDIR_NVB)/Vtop
 clean:
 	rm -rf $(TARGET_DIR) $(WAVE_FILE) $(STA_DIR)
 
-.PHONY: all sim nvb clean
+.PHONY: all sim nvb syn sta clean
