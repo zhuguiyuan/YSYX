@@ -15,11 +15,12 @@ module bits_slr #(
             assign q_o = d_i;
         end else begin : g_slr
             (* shreg_extract = "yes" *)
-            logic [WIDTH-1:0] sr[DEPTH];
+            reg [WIDTH-1:0] sr[DEPTH];
 
+            integer i;
             always @(posedge clk_i) begin
                 sr[0] <= d_i;
-                for (int i = 1; i < DEPTH; i++) begin
+                for (i = 1; i < DEPTH; i++) begin
                     sr[i] <= sr[i-1];
                 end
             end

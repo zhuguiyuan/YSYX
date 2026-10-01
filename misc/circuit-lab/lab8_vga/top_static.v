@@ -1,6 +1,6 @@
 module top_static (
     input  wire       clk_i,
-    input  wire       rst_i,
+    input  wire       rst_ni,
     output wire       VGA_CLK_o,
     output wire       VGA_HSYNC_o,
     output wire       VGA_VSYNC_o,
@@ -29,7 +29,7 @@ module top_static (
     wire [ 8-1:0] vga_b_Nd;
     vga_ctrl my_vga_ctrl (
         .pclk    (clk_i),
-        .reset   (rst_i),
+        .reset   (~rst_ni),
         .vga_data(vga_data_Nd),
         .h_addr  (h_addr_0d),
         .v_addr  ({_unused, v_addr_0d}),

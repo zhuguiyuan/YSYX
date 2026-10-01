@@ -1,6 +1,6 @@
 top=top
 
-rst_i (SW0)
+rst_ni (SW0)
 
 # VGA_CLK is set to clk
 VGA_VSYNC_o VGA_VSYNC
