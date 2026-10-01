@@ -1,5 +1,6 @@
 #include "inst.h"
 #include "dbg.h"
+#include <am.h>
 #include <glib.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -128,5 +129,5 @@ inst_t inst_decode_from_binary(uint32_t binary) {
   }
   return inst;
 error:
-  exit(EXIT_FAILURE);
+  halt(EXIT_FAILURE);
 }

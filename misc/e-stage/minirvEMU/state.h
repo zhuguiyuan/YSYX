@@ -5,28 +5,33 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
-typedef struct {
+/** memory and mmio space */
+typedef struct mem_space mem_space_t;
+
+mem_space_t *mem_space_new(void);
+
+void mem_space_free(mem_space_t *m);
+
+/** When mem read address is invalid, exit with error. */
+uint32_t mem_space_read(mem_space_t *m, uint32_t addr);
+
+/** @param mask 32-bit bit-enable mask for the write value.
+  When mem write address is invalid, exit with error. */
+void mem_space_write(mem_space_t *m, uint32_t addr, uint32_t value,
+                     uint32_t mask);
+
+/** minirv emulation state */
+typedef struct state {
   uint32_t registers[32];
   uint32_t pc;
-  uint32_t mem_size;
-  uint32_t *mem;
+  mem_space_t *mem;
 } state_t;
 
-static inline void state_init(state_t *s, uint32_t mem_size) {
-  memset(s, 0, sizeof(*s)); /* 清零寄存器和 pc */
-  s->mem_size = mem_size;
-  s->mem = g_malloc0(mem_size);
-}
+state_t *state_new(void);
 
-static inline void state_cleanup(state_t *s) {
-  if (s != NULL) {
-    g_free(s->mem);
-    s->mem = NULL;
-  }
-}
-G_DEFINE_AUTOPTR_CLEANUP_FUNC(state_t, state_cleanup)
+void state_free(state_t *s);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(state_t, state_free)
 
 void print_state(state_t *s);
 

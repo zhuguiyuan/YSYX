@@ -11,14 +11,14 @@ module alu (
     // pre-compute add and sub
     wire [3:0] not_b = ~b;
     wire [3:0] r_add, r_sub;
-    wire       cf_add, cf_sub;
+    wire cf_add, cf_sub;
 
     assign {cf_add, r_add} = a + b;
     assign {cf_sub, r_sub} = a + not_b + 1;
 
     // for always block
     reg [3:0] r_inner;
-    reg       cf_inner, of_inner, zf_inner;
+    reg cf_inner, of_inner, zf_inner;
 
     always @(*) begin
         {cf_inner, r_inner} = 0;
@@ -45,13 +45,13 @@ module alu (
 
     always @(*) begin
         case (op)
-            3'b000: of_inner = a[3] == b[3] && a[3] != r_add[3];
-            3'b001: of_inner = a[3] != b[3] && a[3] != r_sub[3];
+            3'b000:  of_inner = a[3] == b[3] && a[3] != r_add[3];
+            3'b001:  of_inner = a[3] != b[3] && a[3] != r_sub[3];
             default: of_inner = 0;
         endcase
     end
 
-    assign r = r_inner;
+    assign r  = r_inner;
     assign cf = cf_inner;
     assign of = of_inner;
     assign zf = zf_inner;
