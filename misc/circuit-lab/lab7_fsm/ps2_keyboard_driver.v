@@ -32,8 +32,8 @@ module ps2_keyboard_driver (
         .ready(code_valid_0d)
     );
 
-    // idle -> idle                               普通按键按下
-    //      -> release -> idle                    普通按键释放
+    // idle -> idle                               基本按键按下
+    //      -> release -> idle                    基本按键释放
     //      -> extend  -> idle                    扩展按键按下
     //                 -> release extend -> idle  扩展按键释放
 
@@ -42,7 +42,8 @@ module ps2_keyboard_driver (
     localparam ST_RELEASE = 4'b0100;
     localparam ST_RELEASE_EXTEND = 4'b1000;
 
-    reg [4-1:0] state_reg, state_nxt;
+    reg  [4-1:0] state_reg;
+    wire [4-1:0] state_nxt;
     always @(posedge clk_i) begin
         if (!rst_ni) begin
             state_reg <= ST_IDLE;
@@ -50,41 +51,26 @@ module ps2_keyboard_driver (
             state_reg <= state_nxt;
         end
     end
-    always @(*) begin
-        state_nxt = state_reg;
-        if (code_valid_0d) begin
-            case (state_reg)
-                ST_IDLE: begin
-                    if (code_value_0d == 8'hf0) state_nxt = ST_RELEASE;
-                    else if (code_value_0d == 8'he0) state_nxt = ST_EXTEND;
-                    else state_nxt = ST_IDLE;
-                end
-                ST_RELEASE: begin
-                    state_nxt = ST_IDLE;
-                end
-                ST_EXTEND: begin
-                    if (code_value_0d == 8'hf0) state_nxt = ST_RELEASE_EXTEND;
-                    else state_nxt = ST_IDLE;
-                end
-                ST_RELEASE_EXTEND: begin
-                    state_nxt = ST_IDLE;
-                end
-                default: state_nxt = ST_IDLE;
-            endcase
-        end
-    end
+    wire code_extend_prefix_0d = code_valid_0d && code_value_0d == 8'he0;
+    wire code_release_prefix_0d = code_valid_0d && code_value_0d == 8'hf0;
+    wire code_basic_0d = code_valid_0d && code_value_0d != 8'he0 && code_value_0d != 8'hf0;
+    assign state_nxt =
+        state_reg == ST_IDLE   && code_extend_prefix_0d  ? ST_EXTEND :
+        state_reg == ST_IDLE   && code_release_prefix_0d ? ST_RELEASE :
+        state_reg == ST_EXTEND && code_release_prefix_0d ? ST_RELEASE_EXTEND :
+        code_basic_0d                                    ? ST_IDLE : state_reg;
 
     reg code_extend_0d;  // 相对最终数据的 0d
     always @(posedge clk_i) begin
-        if (state_reg == ST_EXTEND || state_reg == ST_RELEASE_EXTEND) begin
+        if (code_extend_prefix_0d) begin
             code_extend_0d <= 1'b1;
-        end else begin
+        end else if (state_reg == ST_IDLE) begin
             code_extend_0d <= 1'b0;
         end
     end
 
-    wire pressing_evt_0d = (state_reg == ST_IDLE || state_reg == ST_EXTEND) && state_nxt == ST_IDLE;
-    wire releasing_evt_0d = (state_reg == ST_RELEASE || state_reg == ST_RELEASE_EXTEND) && state_nxt == ST_IDLE;
+    wire pressing_evt_0d = (state_reg == ST_IDLE || state_reg == ST_EXTEND) && code_basic_0d;
+    wire releasing_evt_0d = (state_reg == ST_RELEASE || state_reg == ST_RELEASE_EXTEND) && code_basic_0d;
 
     wire lshift_evt_0d = code_value_0d == 8'h12;
     wire rshift_evt_0d = code_value_0d == 8'h59;
@@ -109,6 +95,8 @@ module ps2_keyboard_driver (
     reg [8-1:0] code_value_1d;
     wire code_new_eq_old = code_value_0d == code_value_1d && code_extend_0d == code_extend_1d;
     always @(posedge clk_i) begin
+        // 默认没有按键事件
+        code_valid_1d <= 1'b0;
         if (!rst_ni) begin
             is_pressing_lock <= 1'd0;
             code_valid_1d    <= 1'b0;
@@ -123,26 +111,22 @@ module ps2_keyboard_driver (
                 code_down_1d  <= 1'b0;
                 code_up_1d    <= 1'b0;
             end else if (releasing_evt_0d && is_coding_normal && code_new_eq_old) begin
-                // 释放了原来按下的按键，生成一个释放事件
+                // 释放了按下的按键，生成一个释放事件
                 code_valid_1d <= 1'b1;
                 code_down_1d <= 1'b0;
                 code_up_1d <= 1'b1;
                 is_pressing_lock <= 1'b0;
-            end else begin
-                code_valid_1d <= 1'b0;
             end
         end else if (!is_pressing_lock) begin
-            // 原来没有按下某个普通按键
+            // 当前没有按下某个普通按键
             if (pressing_evt_0d && is_coding_normal) begin
-                // 按下了一个新的按键，生成一个按下事件
+                // 按下了一个按键，生成一个按下事件
                 code_valid_1d <= 1'b1;
                 code_down_1d <= 1'b1;
                 code_up_1d <= 1'b0;
                 code_value_1d <= code_value_0d;
                 code_extend_1d <= code_extend_0d;
                 is_pressing_lock <= 1'b1;
-            end else begin
-                code_valid_1d <= 1'b0;
             end
         end else begin
             // cannot reach here

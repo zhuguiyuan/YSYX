@@ -41,12 +41,6 @@ module img_view (
         .data_out(y_speed_init)
     );
 
-    reg [8-1:0] frame_cnt;
-    always @(negedge rst_ni or posedge clk_i) begin
-        if (!rst_ni) frame_cnt <= 8'd0;
-        else if (v_sync_rise_i) frame_cnt <= frame_cnt + 8'd1;
-    end
-
     // calculate state when v_sync is high
     reg v_sync_rise_1d;
     reg v_sync_rise_2d;
