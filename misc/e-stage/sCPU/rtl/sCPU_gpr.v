@@ -1,5 +1,6 @@
 module sCPU_gpr (
     input  wire         clk_i,
+    input  wire         rst_i,
     input  wire [2-1:0] rd_addr_0_i,
     output wire [8-1:0] rd_data_0_o,
     input  wire [2-1:0] rd_addr_1_i,
@@ -17,8 +18,10 @@ module sCPU_gpr (
         end
     end
 
+    // rst_i has been synced to clk_i
+    wire wr_en_gated = wr_en_i & ~rst_i;
     always @(posedge clk_i) begin
-        if (wr_en_i) begin
+        if (wr_en_gated) begin
             reg_file[wr_addr_i] <= wr_data_i;
         end
     end

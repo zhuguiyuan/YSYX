@@ -1,10 +1,19 @@
 module sCPU_top (
     input wire clk_i,
-    input wire rst_ni,
+    input wire rst_async_ni,
     output wire [8-1:0] seg_lo_o,
     output wire [8-1:0] seg_hi_o,
     output wire [8-1:0] led_o
 );
+
+    wire rst_i;
+    wire rst_done_unused;
+    reset_sync u_reset_sync (
+        .clk_i(clk_i),
+        .rst_async_ni(rst_async_ni),
+        .rst_sync_o(rst_i),
+        .rst_done_o(rst_done_unused)
+    );
 
     wire [8-1:0] pc;
     wire [8-1:0] inst;
@@ -17,7 +26,7 @@ module sCPU_top (
     wire [8-1:0] odev1;
     sCPU_core u_core (
         .clk_i(clk_i),
-        .rst_i(~rst_ni),
+        .rst_i(rst_i),
         .pc_o(pc),
         .inst_i(inst),
         .odev0_o(odev0),

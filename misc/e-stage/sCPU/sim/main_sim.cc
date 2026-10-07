@@ -96,11 +96,17 @@ struct SimulationState {
   }
 
   void reset() {
-    top.rst_ni = 0;
+    // trigger a negedge by hand
+    top.rst_async_ni = 1;
+    top.eval();
+    top.rst_async_ni = 0;
     for (int i = 0; i < 10; ++i) {
       cycle();
     }
-    top.rst_ni = 1;
+    top.rst_async_ni = 1;
+    while (top.rootp->sCPU_top__DOT__rst_i != 0) {
+      cycle();
+    }
   }
 };
 
@@ -133,6 +139,7 @@ int main(int argc, char *argv[]) {
 
   model.init_program();
   state.reset();
+  check_state(model, state);
   bool finish = false;
   do {
     finish = !model.inst_cycle();

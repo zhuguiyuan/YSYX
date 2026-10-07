@@ -65,11 +65,11 @@ module sCPU_core (
         .gpr_wr_addr_o(gpr_wr_addr),
         .gpr_wr_data_o(gpr_wr_data),
         .ner0_o(ner0)
-
     );
 
     sCPU_gpr u_grp (
         .clk_i(clk_i),
+        .rst_i(rst_i),
         .rd_addr_0_i(gpr_rd_addr0),
         .rd_data_0_o(gpr_rd_data0),
         .rd_addr_1_i(gpr_rd_addr1),
