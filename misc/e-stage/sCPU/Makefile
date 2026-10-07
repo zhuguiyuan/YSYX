@@ -3,12 +3,24 @@ TOP_MODULE ?= sCPU_top
 VSRCS = $(wildcard rtl/*.v)
 TARGET_DIR = target
 
-all: nvb
+all: sim
 
 # Verilator Common Flags
 VERILATOR_FLAGS = -Wall -MMD -O3 --x-assign fast --x-initial fast \
 	--prefix Vtop --top-module $(TOP_MODULE) -o Vtop \
-	-Wno-DECLFILENAME
+
+# Verilator Targets
+CSRCS_SIM = sim/main_sim.cc
+MDIR_SIM = $(TARGET_DIR)/sim
+WAVE_FLAGS = --trace-fst
+WAVE_FILE = wave.fst
+
+$(MDIR_SIM)/Vtop: $(VSRCS) $(CSRCS_SIM)
+	mkdir -p $(@D)
+	cp $(CSRCS_SIM) $(MDIR_SIM)
+	verilator -cc -exe --build $(VERILATOR_FLAGS) \
+		-Mdir $(@D) $(WAVE_FLAGS) \
+		$(CSRCS_SIM) $(VSRCS)
 
 # NVBoard Targets
 CSRCS_NVB = nvb/main_nvb.cc
@@ -43,10 +55,13 @@ sta:
 		DESIGN=$(TOP_MODULE) CLK_PORT_NAME=clk_i RTL_FILES="$(abspath $(VSRCS))"
 
 # Quick Commands
+sim: $(MDIR_SIM)/Vtop
+	$<
+
 nvb: $(MDIR_NVB)/Vtop
 	$<
 
 clean:
 	rm -rf $(TARGET_DIR)
 
-.PHONY: all nvb syn sta clean
+.PHONY: all sim nvb syn sta clean
