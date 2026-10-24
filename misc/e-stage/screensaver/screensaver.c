@@ -1,5 +1,4 @@
 #include <am.h>
-#include <glib.h>
 #include <klib-macros.h>
 #include <klib.h>
 #include <stdbool.h>
@@ -8,7 +7,7 @@
 void draw(uint32_t color) {
   int height = io_read(AM_GPU_CONFIG).height;
   int width = io_read(AM_GPU_CONFIG).width;
-  g_autofree uint32_t *buf = malloc(height * width * sizeof(uint32_t));
+  uint32_t *buf = malloc(height * width * sizeof(uint32_t));
   uint32_t *curr = buf;
   for (int i = 0; i < width; ++i) {
     for (int j = 0; j < height; ++j) {
@@ -16,6 +15,7 @@ void draw(uint32_t color) {
     }
   }
   io_write(AM_GPU_FBDRAW, 0, 0, buf, width, height, false);
+  free(buf);
 }
 
 static inline uint8_t rand_color_component() {
