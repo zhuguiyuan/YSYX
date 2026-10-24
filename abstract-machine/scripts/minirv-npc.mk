@@ -1,4 +1,4 @@
-include $(AM_HOME)/scripts/isa/riscv.mk
+include $(AM_HOME)/scripts/isa/riscv32.mk
 include $(AM_HOME)/scripts/platform/npc.mk
 
 export PATH := $(PATH):$(abspath $(AM_HOME)/tools/minirv)
@@ -7,7 +7,6 @@ AS = minirv-gcc
 CXX = minirv-g++
 
 COMMON_CFLAGS += -march=rv32e_zicsr -mabi=ilp32e  # overwrite
-LDFLAGS       += -melf32lriscv                    # overwrite
 
 AM_SRCS += riscv/npc/libgcc/div.S \
            riscv/npc/libgcc/muldi3.S \

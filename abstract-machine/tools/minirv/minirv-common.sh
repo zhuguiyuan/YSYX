@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 src=${*: -1}
 dst=${*: -2:1}
@@ -9,7 +10,7 @@ dst_S=${dst%.o}.S
 if [[ "$src" == *.S ]] ; then
   cp $src $dst_S
 else
-  riscv64-linux-gnu-$cc $flags -S -o $dst_S $src
+  riscv64-unknown-elf-$cc $flags -S -o $dst_S $src
 fi
 
 # replace pseudo instructions for load/store
@@ -28,7 +29,7 @@ sed -i "1i#include \"$minirv_path/inst-replace.h\"" $dst_S
 flock $minirv_path/.lock -c "test -e $lut_bin_path || (cd $minirv_path && gcc gen-lut.c && ./a.out && rm a.out)"
 
 src_dir=`dirname $src`
-riscv64-linux-gnu-gcc -I$src_dir $flags -D_LUT_BIN_PATH=\"$lut_bin_path\" -Wno-trigraphs -c -o $dst $dst_S
+riscv64-unknown-elf-gcc -I$src_dir $flags -D_LUT_BIN_PATH=\"$lut_bin_path\" -Wno-trigraphs -c -o $dst $dst_S
 
 # set a non-standard extension flag in e_flags to indicate minirv
 /bin/echo -ne '\x80' | dd of=$dst bs=1 seek=39 count=1 conv=notrunc 2> /dev/null

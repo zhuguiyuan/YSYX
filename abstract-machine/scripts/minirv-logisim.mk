@@ -1,4 +1,4 @@
-include $(AM_HOME)/scripts/isa/riscv.mk
+include $(AM_HOME)/scripts/isa/riscv32.mk
 include $(AM_HOME)/scripts/platform/logisim.mk
 
 export PATH := $(PATH):$(abspath $(AM_HOME)/tools/minirv)
@@ -8,7 +8,6 @@ CXX = minirv-g++
 
 CFLAGS  += -DISA_H=\"riscv/riscv.h\"
 COMMON_CFLAGS += -march=rv32e_zicsr -mabi=ilp32e  # overwrite
-LDFLAGS       += -melf32lriscv                   # overwrite
 
 AM_SRCS += riscv/nemu/start.S \
            riscv/nemu/cte.c \
